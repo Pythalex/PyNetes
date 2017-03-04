@@ -5,7 +5,7 @@ HEIGHT    = 480
 ORIGIN    = (WIDTH//2, HEIGHT//2) # Origine du repère
 t = 0                             # variable de temps
 timecount = 0
-UA        = 10                    # UA <-> px
+UA        = 100                    # UA <-> px
 TIMESPEED = 3000000               # Accélération du temps
 
 days      = 0
@@ -41,8 +41,9 @@ class Planete(object):
 		   type(self.equationy) == sage.symbolic.expression.Expression or  \
 		   force):
 
-			self.posx = self.equationx(t).n() * self.distanceUA + ORIGIN[0]
-			self.posy = self.equationy(t).n() * self.distanceUA + ORIGIN[1]
+			self.posx = self.equationx(t).n() + ORIGIN[0]
+			self.posy = self.equationy(t).n() + ORIGIN[1]
+			
 
 	def get_pos(self):
 		return (self.posx, self.posy)
@@ -123,8 +124,17 @@ def main():
 					 Terre.distanceUA * sin(Terre.vitesseAng * x))
 	Terre.set_equation(equationTerre[0], equationTerre[1])
 
+	Satellite = Planete(taille = 3,
+						distance_Etoile = 0.5,
+						vitesseAng = 1.99e-7)
+	equationSat = (Satellite.distanceUA * cos(Satellite.vitesseAng * x + pi / 5),
+				   Satellite.distanceUA * sin(Satellite.vitesseAng * x + pi / 5))
+
+	Satellite.set_equation(equationSat[0], equationSat[1])
+
 	time_actualise(fen, can)
 	animation(fen, can, Terre)
+	animation(fen, can, Satellite)
 	
 	fen.mainloop()
 
