@@ -18,15 +18,21 @@ DAYSTEXTAREA = (WIDTH // 10, HEIGHT // 20)
 class Planete(object):
 
 	def __init__(self, taille, distance_Etoile, vitesseAng):
+		# Propritété planète
 		self.taille     = taille
 		self.distanceUA = distance_Etoile * UA          # en UA
 		self.distancekm = self.distanceUA * 149597887.5 # en km
 		self.vitesseAng = vitesseAng
+
+		# Propriété coordonnées
 		self.equationx  = 0
 		self.equationy  = 0
 		self.posx       = 0
 		self.posy       = 0
+
+		# Propriété Tkinter
 		self.pyimage    = -1
+		self.delete     = False
 
 	def set_equation(self, equationx, equationy):
 		self.equationx = equationx
@@ -70,8 +76,10 @@ def animation(master, canvas, planete):
 
 	# Actualisation canvas
 	canvas.update_idletasks()
-	# Reanim
-	master.after(16, animation, master, canvas, planete)
+
+	# Reanim 
+	if(not(planete.delete)):
+		master.after(16, animation, master, canvas, planete)
 
 """
 	Actualisation du temps
@@ -134,7 +142,7 @@ def main():
 
 	fen = Tk()
 
-	can = Canvas(fen, width = WIDTH, height = HEIGHT)
+	can = Canvas(fen, width = WIDTH, height = HEIGHT, bg = "#000000")
 	can.grid(row=1, column=1, rowspan=2)
 
 	terre_select    = IntVar()
