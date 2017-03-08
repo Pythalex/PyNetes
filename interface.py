@@ -2,6 +2,7 @@
 from Tkinter    import *
 from calculs    import *
 from file       import *
+from sage import *
 
 class ResizingCanvas(Canvas):
     def __init__(self,parent,**kwargs):
@@ -21,11 +22,11 @@ class ResizingCanvas(Canvas):
         # rescale all the objects tagged with the "all" tag
         self.scale("all",0,0,wscale,hscale)
 
-def _draw_planet(planete):
+def _draw_planet(self, planete):
 	x, y = planete.get_pos()
 	r    = planete.taille
 	color= planete.couleur
-	return self.create_oval(x-r, y-r, x+r, y+r, fill = couleur)
+	return self.create_oval(x-r, y-r, x+r, y+r, fill = color)
 Canvas.draw_planet = _draw_planet
 
 class Application(Tk):
@@ -122,13 +123,13 @@ class Application(Tk):
 
 			self.canvas.delete(planete.pyimage)
 
-			print "\n\nDEBUG animation line 125\n\n"
-			print planete.equationx.has(x)
-			print "\n\nDEBUG FIN\n\n"
 			planete.actualiser_position(force = True)
 
 			self.canvas.draw_planet(planete)
 
+			compteur += 1
+
+		self.canvas.update_idletasks()
 		self.after(16, self.animation)
 
 	def ajouter_planete(self):

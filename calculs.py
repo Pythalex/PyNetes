@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 
+# Modules
+
+from sage.calculus.var import *
+
+# Variables
+
 WIDTH     = 640
 HEIGHT    = 480
 ORIGIN    = (WIDTH//2, HEIGHT//2) # Origine du repère
@@ -45,17 +51,12 @@ class Planete(object):
 		return (self.equationx, self.equationy)
 
 	def actualiser_position(self, force = False):
-		print "\n\nTEFNZEJOFENF\n\n"
 		# Si la vérification des types est activée et les équations sont valides
 		# Ou si le forcemode est activé
 		if(not(force) and 
 			type(self.equationx) == sage.symbolic.expression.Expression and 
 			type(self.equationy) == sage.symbolic.expression.Expression or 
 			force):
-
-			print "TEFN?ZEJOFENF\n"
-			print self.equationx.has(x)
-			print "TEFN?ZEJOFENF\n"
 
 			if(self.equationx.has(x)):
 				self.posx = self.equationx(t).n() + ORIGIN[0]
