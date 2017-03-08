@@ -29,6 +29,32 @@ def _draw_planet(self, planete):
 	return self.create_oval(x-r, y-r, x+r, y+r, fill = color)
 Canvas.draw_planet = _draw_planet
 
+class Planete_Prop_Window(Tk):
+
+	def __init__(self, planete):
+		Tk.__init__(self)
+		self.planete = planete
+		self.planete_name = Label(text = planete.nom)
+		self.planete_pos  = Label(text = "Position : {}".format((planete.get_pos())))
+
+class Planete_Bouton(Button):
+
+	def __init__(self, planete, master, **kwargs):
+		Button.__init__(self, master, kwargs)
+		self.est_affiche = False
+		self.planete     = planete
+
+	def afficher_fenetre(self):
+		Planet_Prop_Window(planete)
+
+class Error_Window(Tk):
+
+	def __init__(self, message):
+		Tk.__init__(self)
+		self.title("PyNetes ERROR")
+		self.geometry("200x100")
+		Label(master = self, text = message).pack(anchor = CENTER)
+
 class Application(Tk):
 
 	# Initialisations
@@ -52,13 +78,11 @@ class Application(Tk):
 		self.custom_nom      = StringVar()
 
 		# Frame de sélection des planètes pour affichage
-		self.select_planets  = LabelFrame(self.frame2, text="Planètes")
-
-		self.select_planets1 = Checkbutton(self.select_planets, text = "Terre",    variable = self.terre_select)
-		self.select_planets2 = Checkbutton(self.select_planets, text = "Satelite", variable = self.satelite_select)
-		self.bouton_actu     = Button(self.select_planets,      text = "Actualiser", 
-													            command = lambda : SelectPlanete(self.terre_select, 
-													  	                             self.satelite_select))
+		self.select_planets_frame  = LabelFrame(self.frame2, text="Planètes")
+		self.planete_var = globals()
+		self.boutons_planetes = []
+		self.selected_planets = []
+		self.planetes_noms    = []
 
 		# Frame de création des planètes
 		self.create_planets        = LabelFrame(self.frame2,     text = "Création")
@@ -71,9 +95,7 @@ class Application(Tk):
 		self.label_create_nom      = Label(self.create_planets,  text = "Nom")
 		self.create_nom            = Entry(self.create_planets,  textvariable = self.custom_nom)
 		self.bouton_create         = Button(self.create_planets, text = "Créer", 
-															     command = lambda : AutrePlanete(self.custom_taille, 
-																						  self.custom_distance, 
-																						  self.custom_vitesse))
+															     command = self.ajouter_planete)
 
 		# Placements widgets
 		self.frame1.grid(row = 0, column = 0)
@@ -82,10 +104,7 @@ class Application(Tk):
 
 		self.frame2.grid(row = 0, column = 1)
 
-		self.select_planets.grid(row = 0, column = 0)
-		self.select_planets1.grid(row = 0, column = 0, sticky = W)
-		self.select_planets2.grid(row = 1, column = 0, sticky = W)
-		self.bouton_actu.grid(row = 2, column = 0)
+		self.select_planets_frame.grid(row = 0, column = 0)
 
 		self.create_planets.grid(row = 1, column = 0)
 		self.label_create_taille.grid(row = 0, column = 0, sticky = W)
@@ -98,11 +117,12 @@ class Application(Tk):
 		self.create_nom.grid(row = 3, column = 1)
 		self.bouton_create.grid(row = 4, column = 0, columnspan = 2)
 
-		# binds
-		self.bouton_create.config(command = self.ajouter_planete)
-
 		# Variables de simulation
 		self.planetes = []
+
+	def select_planets(self, planetes):
+		for planete in planetes:
+			self.ajouter_planete(planete)
 
 	# Methodes
 	def time(self):
@@ -125,7 +145,7 @@ class Application(Tk):
 
 			planete.actualiser_position(force = True)
 
-			self.canvas.draw_planet(planete)
+			planete.pyimage = self.canvas.draw_planet(planete)
 
 			compteur += 1
 
@@ -133,19 +153,38 @@ class Application(Tk):
 		self.after(16, self.animation)
 
 	def ajouter_planete(self):
-
 		# On crée la planète correspondante aux données du GUI
 		planete = Planete(self.custom_nom.get(), 
 						  float(self.custom_taille.get()), 
 						  float(self.custom_distance.get()), 
 						  float(self.custom_vitesse.get()))
-		equation = (planete.distancekm * cos(planete.vitesseAng * x),
-					planete.distancekm * sin(planete.vitesseAng * x))
+		equation = (planete.distanceUA * cos(planete.vitesseAng * x),
+					planete.distanceUA * sin(planete.vitesseAng * x))
 		planete.set_equation(equation[0], equation[1])
 
 		# On l'ajoute à la liste des planetes
 		self.planetes.append(planete)
+		# On crée le bouton associé à la planète
+		self.ajouter_bouton_planete(planete)
 
+	def ajouter_bouton_planete(self, planete):
+			
+		# Si le nom de la planète est déjà pris
+		if planete.nom in self.planetes_noms:
+			# On affiche une erreur
+			Error_Window(message = "{} existe déjà.".format(planete.nom))
+
+		else:
+			self.planete_var[planete.nom] = planete
+			self.planetes_noms.append(planete.nom)
+
+		# Sinon ça marche
+		"""
+		except NameError:
+			self.planete_var[planete.nom] = planete
+			self.boutons_planetes.append(self.planete_var[planete.nom])
+			self.boutons_planetes.append(Planete_Bouton())
+			"""
 	def update(self):
 		self.time()
 		self.animation()

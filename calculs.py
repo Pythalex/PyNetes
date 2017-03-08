@@ -12,7 +12,7 @@ ORIGIN    = (WIDTH//2, HEIGHT//2) # Origine du repère
 t = 0                             # variable de temps
 timecount = 0
 UA        = 100                    # UA <-> px
-TIMESPEED = 3000000               # Accélération du temps
+TIMESPEED = 30000                     # Accélération du temps
 NBPLANETE = 0
 
 days      = 0
