@@ -33,71 +33,21 @@ Canvas.draw_planet = _draw_planet
 
 class Planete_Prop_Window(Tk):
 
-	def __init__(self, planete, bouton):
+	def __init__(self, planete):
 		Tk.__init__(self)
 		self.planete = planete
-
-		self.planete_name  = Label(master = self, text = planete.nom)
-
-		self.posx = StringVar()
-		self.posx.set("Position x : {0:0.1f}".format(float(planete.get_pos()[0])))
-		self.posy = StringVar()
-		self.posy.set("Position y : {0:0.1f}".format(float(planete.get_pos()[1])))
-
-		self.planete_pos_x = Label(master = self, textvariable = self.posx)
-		self.planete_pos_y = Label(master = self, textvariable = self.posy)
-
-		self.bouton_switch = Button(self, text = "Afficher", command = bouton.switch)
-
-		self.planete_name.grid(row = 0, column = 0, 
-			rowspan = 2, columnspan = 2)
-		self.planete_pos_x.grid(row = 2, column = 0)
-		self.planete_pos_y.grid(row = 3, column = 0)
-		self.bouton_switch.grid(row = 4, column = 0)
+		self.planete_name = Label(text = planete.nom)
+		self.planete_pos  = Label(text = "Position : {}".format((planete.get_pos())))
 
 class Planete_Bouton(Button):
 
-	def __init__(self, planete, master, boutons, **kwargs):
+	def __init__(self, planete, master, **kwargs):
 		Button.__init__(self, master, kwargs)
-		# Si la planete est actuellement affiché
-		self.est_affiche = True
-		# Si la planete doit être affiché 
-		self.affiche     = True
-		# Si le bouton doit être supprimé
-		self.to_delete   = False
+		self.est_affiche = False
+		self.planete     = planete
 
-		self.grid(row = len(boutons), column = 0)
-
-		self.configure(text = self.planete.nom,
-			command = self.afficher_fenetre)
-
-	""" Affiche la fenêtre des propriétés de la planète """
 	def afficher_fenetre(self):
-		Planete_Prop_Window(self.planete, self)
-
-	""" Cache la planete sans l'effacer """
-	def hide(self):
-		if self.est_affiche:
-			self.affiche = False
-
-	""" Affiche la planete """
-	def show(self):
-		self.boutons = boutons
-		if not self.est_affiche:
-			self.affiche = True
-
-	""" Supprime la planete et le bouton """
-	def delete(self):
-		self.to_delete = True
-		self.affiche   = False
-
-	""" Change le bouton en on/off """
-	def switch(self):
-		if self.est_affiche:
-			self.hide()
-		else:
-			self.show(self.boutons)
-
+		Planet_Prop_Window(planete)
 
 class Error_Window(Tk):
 
@@ -134,9 +84,9 @@ class Application(Tk):
 
 		# Frame de sélection des planètes pour affichage
 		self.select_planets_frame  = LabelFrame(self.frame2, text="Planètes")
-		self.planetes = []
+		self.planete_var = globals()
 		self.boutons_planetes = []
-		self.selected_planetes = []
+		self.selected_planets = []
 		self.planetes_noms    = []
 
 		# Frame de création des planètes
@@ -188,8 +138,13 @@ class Application(Tk):
 
 	def animation(self):
 		compteur = 0
-		while compteur < len(self.selected_planetes):
-			planete = self.selected_planetes[compteur]
+		while compteur < len(self.planetes):
+			planete = self.planetes[compteur]
+
+			# Si la planete a été marquée 
+			if(planete.delete):
+				del self.planetes[compteur]
+				break
 
 			self.canvas.delete(planete.pyimage)
 
@@ -210,6 +165,9 @@ class Application(Tk):
 			Error_Window(message = "{} existe déjà.".format(self.custom_nom.get()))
 			return 1
 
+		elif bool(self.planete_var[self.custom_nom.get()]):
+			# Le nom de la planète est un nom de variable
+
 		# On crée la planète correspondante aux données du GUI
 		planete = Planete(self.custom_nom.get(), 
 						  float(self.custom_taille.get()), 
@@ -221,45 +179,33 @@ class Application(Tk):
 
 		# On l'ajoute à la liste des planetes
 		self.planetes.append(planete)
-		self.selected_planetes.append(planete)
 		# On crée le bouton associé à la planète
 		self.ajouter_bouton_planete(planete)
 
 	def ajouter_bouton_planete(self, planete):
 
-		# On ajoute la planète a la liste des planètes de l'utilisateur
-		self.planetes.append(planete)
+		# On crée une variable pour référencer la planete
+		self.planete_var[planete.nom] = planete
 		self.planetes_noms.append(planete.nom)
-		# On ajoute un nouveau bouton à la fenêtre
-		self.boutons_planetes.append(Planete_Bouton(planete, self.select_planets_frame))
-		# On affiche le bouton
-		self.boutons_planetes[-1].show(self.boutons_planetes)
 
-	def refresh_planetes(self):
-		for bouton in self.boutons_planetes:
-			# Si la planète est à cacher
-			if not bouton.affiche and bouton.est_affiche:
-				self.selected_planetes.remove(bouton.planete)
-				bouton.est_affiche = False
-				bouton.grid_forget()
-			# Si la planete est à réafficher
-			elif bouton.affiche and not bouton.est_affiche:
-				self.selected_planetes.append(bouton.planete)
-				bouton.est_affiche = True
-				bouton.grid(row = len(self.boutons_planetes), column = 0)
-			# Si la planète est à supprimer
-			elif bouton.to_delete:
-				self.selected_planetes.remove(bouton.planete)
-				self.planetes.remove(bouton.planete)
-				boutons_planetes.remove(bouton)
-				bouton.destroy()
+		# Sinon ça marche
+		"""
+		except NameError:
+			self.planete_var[planete.nom] = planete
+			self.boutons_planetes.append(self.planete_var[planete.nom])
+			self.boutons_planetes.append(Planete_Bouton())
+			"""
 
-		self.after(16, self.refresh_planetes)
+	def afficher_boutons_planetes(self):
+		for planete in self.planetes_noms:
+			# On affiche les boutons qui ne sont pas encore affichés
+			if not bouton.est_affiche():
+
+
 
 	def update(self):
 		self.time()
 		self.animation()
-		self.refresh_planetes()
 
 def main():
 
