@@ -26,26 +26,34 @@ class ResizingCanvas(Canvas):
 
 def _draw_planet(self, planete):
 	x, y = planete.get_pos()
-	r    = planete.taille
+	r    = planete.taille/2
 	color= planete.couleur
 	return self.create_oval(x-r, y-r, x+r, y+r, fill = color)
 Canvas.draw_planet = _draw_planet
 
-class Planete_Prop_Window(Tk):
+class Planete_Prop_Window(Toplevel):
 
-	def __init__(self, planete, bouton):
-		Tk.__init__(self)
+	def __init__(self, master, planete, bouton):
+		Toplevel.__init__(self)
+		self.master  = master
 		self.planete = planete
-
 		self.planete_name  = Label(master = self, text = planete.nom)
 
+		# Affichage
 		self.posx = StringVar()
 		self.posx.set("Position x : {0:0.1f}".format(float(planete.get_pos()[0])))
 		self.posy = StringVar()
 		self.posy.set("Position y : {0:0.1f}".format(float(planete.get_pos()[1])))
+		self.planete_taille = DoubleVar()
+		self.planete_taille.set(self.planete.taille)
 
 		self.planete_pos_x = Label(master = self, textvariable = self.posx)
 		self.planete_pos_y = Label(master = self, textvariable = self.posy)
+		self.planete_taille_label= Label(master = self, text = "Taille : ")
+		self.planete_taille_value= Spinbox(master = self, 
+			from_ = 0,
+			to    = 1000,
+			textvariable = self.planete_taille)
 
 		self.bouton_switch = Button(self, text = "Afficher", command = bouton.switch)
 
@@ -55,25 +63,41 @@ class Planete_Prop_Window(Tk):
 		self.planete_pos_y.grid(row = 3, column = 0)
 		self.bouton_switch.grid(row = 4, column = 0)
 
+		self.refresh()
+
+	def refresh(self):
+		self.posx.set("Position x : {0:0.1f}".format(float(self.planete.get_pos()[0])))
+		self.posy.set("Position y : {0:0.1f}".format(float(self.planete.get_pos()[1])))
+
+		self.planete_taille.set(self.planete_taille)
+		self.planete.taille = self.planete_taille.get()
+
+		self.after(30, self.refresh)
+
+
 class Planete_Bouton(Button):
 
-	def __init__(self, planete, master, boutons, **kwargs):
-		Button.__init__(self, master, kwargs)
+	def __init__(self, master, planete, length):
+		Button.__init__(self, master = master)
 		# Si la planete est actuellement affiché
 		self.est_affiche = True
 		# Si la planete doit être affiché 
 		self.affiche     = True
 		# Si le bouton doit être supprimé
 		self.to_delete   = False
+		# La planète associée au bouton
+		self.planete     = planete
+		# Frame boutons
+		self.master      = master
 
-		self.grid(row = len(boutons), column = 0)
+		self.grid(row = length, column = 0)
 
 		self.configure(text = self.planete.nom,
 			command = self.afficher_fenetre)
 
 	""" Affiche la fenêtre des propriétés de la planète """
 	def afficher_fenetre(self):
-		Planete_Prop_Window(self.planete, self)
+		Planete_Prop_Window(self.master, self.planete, self)
 
 	""" Cache la planete sans l'effacer """
 	def hide(self):
@@ -82,7 +106,6 @@ class Planete_Bouton(Button):
 
 	""" Affiche la planete """
 	def show(self):
-		self.boutons = boutons
 		if not self.est_affiche:
 			self.affiche = True
 
@@ -96,13 +119,13 @@ class Planete_Bouton(Button):
 		if self.est_affiche:
 			self.hide()
 		else:
-			self.show(self.boutons)
+			self.show()
 
 
-class Error_Window(Tk):
+class Error_Window(Toplevel):
 
-	def __init__(self, message):
-		Tk.__init__(self)
+	def __init__(self, master, message):
+		Toplevel.__init__(self)
 		self.title("PyNetes ERROR")
 		self.canvas = Canvas(master = self, width = 100, height = 100)
 		self.canvas.pack()
@@ -131,6 +154,15 @@ class Application(Tk):
 		self.custom_distance = StringVar()
 		self.custom_vitesse  = StringVar()
 		self.custom_nom      = StringVar()
+		self.time_reglage    = DoubleVar()
+
+		# Frame des reglages
+		self.reglages_frame = LabelFrame(self.frame2, text = "Configurations")
+		self.time_spinbox   = Spinbox(self.reglages_frame, 
+			from_ = 0, 
+			to = 1000000000, 
+			textvariable = self.time_reglage)
+		self.time_reglage.set(1)
 
 		# Frame de sélection des planètes pour affichage
 		self.select_planets_frame  = LabelFrame(self.frame2, text="Planètes")
@@ -140,16 +172,16 @@ class Application(Tk):
 		self.planetes_noms    = []
 
 		# Frame de création des planètes
-		self.create_planets        = LabelFrame(self.frame2,     text = "Création")
-		self.label_create_taille   = Label(self.create_planets,  text = "Taille")
-		self.create_taille         = Entry(self.create_planets,  textvariable = self.custom_taille)
-		self.label_create_distance = Label(self.create_planets,  text = "Distance")
-		self.create_distance       = Entry(self.create_planets,  textvariable = self.custom_distance)
-		self.label_create_vitesse  = Label(self.create_planets,  text = "Vitesse")
-		self.create_vitesse        = Entry(self.create_planets,  textvariable = self.custom_vitesse)
-		self.label_create_nom      = Label(self.create_planets,  text = "Nom")
-		self.create_nom            = Entry(self.create_planets,  textvariable = self.custom_nom)
-		self.bouton_create         = Button(self.create_planets, text = "Créer", 
+		self.create_planets_frame  = LabelFrame(self.frame2,           text = "Création")
+		self.label_create_taille   = Label(self.create_planets_frame,  text = "Taille")
+		self.create_taille         = Entry(self.create_planets_frame,  textvariable = self.custom_taille)
+		self.label_create_distance = Label(self.create_planets_frame,  text = "Distance")
+		self.create_distance       = Entry(self.create_planets_frame,  textvariable = self.custom_distance)
+		self.label_create_vitesse  = Label(self.create_planets_frame,  text = "Vitesse")
+		self.create_vitesse        = Entry(self.create_planets_frame,  textvariable = self.custom_vitesse)
+		self.label_create_nom      = Label(self.create_planets_frame,  text = "Nom")
+		self.create_nom            = Entry(self.create_planets_frame,  textvariable = self.custom_nom)
+		self.bouton_create         = Button(self.create_planets_frame, text = "Créer", 
 															     command = self.ajouter_planete)
 
 		# Placements widgets
@@ -159,9 +191,12 @@ class Application(Tk):
 
 		self.frame2.grid(row = 0, column = 1)
 
-		self.select_planets_frame.grid(row = 0, column = 0)
+		self.reglages_frame.grid(row = 0, column = 0)
+		self.time_spinbox.grid(row = 0, column = 0)
 
-		self.create_planets.grid(row = 1, column = 0)
+		self.select_planets_frame.grid(row = 1, column = 0)
+
+		self.create_planets_frame.grid(row = 2, column = 0)
 		self.label_create_taille.grid(row = 0, column = 0, sticky = W)
 		self.create_taille.grid(row = 0, column = 1)
 		self.label_create_distance.grid(row = 1, column = 0, sticky = W)
@@ -181,8 +216,11 @@ class Application(Tk):
 
 	# Methodes
 	def time(self):
+		global TIMESPEED
+		# Update du temps
+		TIMESPEED = self.time_reglage.get()
 		# Incrémenter compteur temps
-		time_actualise()
+		time_actualise(TIMESPEED)
 		# Recommencez après 5 ms
 		self.after(5, self.time)
 
@@ -192,22 +230,27 @@ class Application(Tk):
 			planete = self.selected_planetes[compteur]
 
 			self.canvas.delete(planete.pyimage)
+			self.canvas.delete(planete.nom_pyimage)
 
 			planete.actualiser_position(force = True)
 
 			planete.pyimage = self.canvas.draw_planet(planete)
+			planete.nom_pyimage = self.canvas.create_text(planete.get_pos()[0] - len(planete.nom) / 2,
+				planete.get_pos()[1] - planete.taille / 2 - HEIGHT / 35,
+				text = planete.nom,
+				fill = "#ffffff") 
 
 			compteur += 1
 
 		self.canvas.update_idletasks()
-		self.after(16, self.animation)
+		self.after(6, self.animation)
 
 	def ajouter_planete(self):
 
 		# Si le nom de la planète est déjà pris
 		if self.custom_nom.get() in self.planetes_noms:
 			# On affiche une erreur
-			Error_Window(message = "{} existe déjà.".format(self.custom_nom.get()))
+			Error_Window(self, message = "{} existe déjà.".format(self.custom_nom.get()))
 			return 1
 
 		# On crée la planète correspondante aux données du GUI
@@ -227,13 +270,11 @@ class Application(Tk):
 
 	def ajouter_bouton_planete(self, planete):
 
-		# On ajoute la planète a la liste des planètes de l'utilisateur
-		self.planetes.append(planete)
 		self.planetes_noms.append(planete.nom)
 		# On ajoute un nouveau bouton à la fenêtre
-		self.boutons_planetes.append(Planete_Bouton(planete, self.select_planets_frame))
+		self.boutons_planetes.append(Planete_Bouton(self.select_planets_frame, planete, len(self.boutons_planetes)))
 		# On affiche le bouton
-		self.boutons_planetes[-1].show(self.boutons_planetes)
+		self.boutons_planetes[-1].show()
 
 	def refresh_planetes(self):
 		for bouton in self.boutons_planetes:
@@ -241,12 +282,11 @@ class Application(Tk):
 			if not bouton.affiche and bouton.est_affiche:
 				self.selected_planetes.remove(bouton.planete)
 				bouton.est_affiche = False
-				bouton.grid_forget()
+				self.canvas.delete(bouton.planete.pyimage)
 			# Si la planete est à réafficher
 			elif bouton.affiche and not bouton.est_affiche:
 				self.selected_planetes.append(bouton.planete)
 				bouton.est_affiche = True
-				bouton.grid(row = len(self.boutons_planetes), column = 0)
 			# Si la planète est à supprimer
 			elif bouton.to_delete:
 				self.selected_planetes.remove(bouton.planete)
@@ -257,16 +297,20 @@ class Application(Tk):
 		self.after(16, self.refresh_planetes)
 
 	def update(self):
+		pass
+
+	def run(self):
 		self.time()
 		self.animation()
 		self.refresh_planetes()
+		self.update()
 
 def main():
 
 	process = Application()
 	process.initApp()
 
-	process.update()
+	process.run()
 
 	process.mainloop()
 

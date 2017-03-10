@@ -12,7 +12,7 @@ ORIGIN    = (WIDTH//2, HEIGHT//2) # Origine du repère
 t = 0                             # variable de temps
 timecount = 0
 UA        = 100                    # UA <-> px
-TIMESPEED = 30000                     # Accélération du temps
+TIMESPEED = 1                     # Accélération du temps
 NBPLANETE = 0
 
 days      = 0
@@ -27,6 +27,7 @@ class Planete(object):
 		self.distancekm = self.distanceUA * 149597887.5 # en km
 		self.vitesseAng = vitesseAng
 		self.nom        = nom
+		self.nom_pyimage= -1
 		self.couleur    = "#ffffff"
 
 		# Propriété coordonnées
@@ -74,7 +75,7 @@ class Planete(object):
 """
 	Actualisation du temps
 """
-def time_actualise():
+def time_actualise(TIMESPEED):
 
 	global t
 	global days
@@ -83,6 +84,7 @@ def time_actualise():
 	res = 0.0054 * TIMESPEED
 	t += res # On compense le temps d'appel de la fonction par un petit ajout au temps
 	timecount += res
+
 	if(int(timecount) % 86400 == 0): # Si une journée est passée
 		days += int(timecount) // 86400
 		timecount = 0
