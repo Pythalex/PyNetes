@@ -28,7 +28,11 @@ class Planete(object):
 		self.vitesseAng = vitesseAng
 		self.nom        = nom
 		self.nom_pyimage= -1
-		self.couleur    = "#ffffff"
+
+		# Un peu de couleur !
+		self.rouge		= 255
+		self.vert		= 255
+		self.bleu		= 255
 
 		# Propriété coordonnées
 		self.equationx  = 0
