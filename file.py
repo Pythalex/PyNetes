@@ -1,6 +1,6 @@
-# -*- coding:utf-8 -*-
+# -*- coding: utf-8 -*-
 
-from calculs import Planete
+from calculs import *
 
 def lire_save(filename):
 

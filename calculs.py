@@ -3,12 +3,10 @@
 # Modules
 
 from sage.calculus.var import *
+from sage.functions.trig import *
 
 # Variables
 
-WIDTH     = 640
-HEIGHT    = 480
-ORIGIN    = (WIDTH//2, HEIGHT//2) # Origine du repère
 t = 0                             # variable de temps
 timecount = 0
 UA        = 100                    # UA <-> px
@@ -55,22 +53,18 @@ class Planete(object):
 	def get_equation(self):
 		return (self.equationx, self.equationy)
 
-	def actualiser_position(self, force = False):
+	def actualiser_position(self, origin):
 		# Si la vérification des types est activée et les équations sont valides
 		# Ou si le forcemode est activé
-		if(not(force) and 
-			type(self.equationx) == sage.symbolic.expression.Expression and 
-			type(self.equationy) == sage.symbolic.expression.Expression or 
-			force):
 
-			if(self.equationx.has(x)):
-				self.posx = self.equationx(t).n() + ORIGIN[0]
-			else:
-				self.posx = self.equationx.n() + ORIGIN[0]
-			if(self.equationy.has(x)):
-				self.posy = self.equationy(t).n() + ORIGIN[1]
-			else:
-				self.posy = self.equationy.n() + ORIGIN[1]
+		if(self.equationx.has(x)):
+			self.posx = self.equationx(t).n() + origin[0]
+		else:
+			self.posx = self.equationx.n() + origin[0]
+		if(self.equationy.has(x)):
+			self.posy = self.equationy(t).n() + origin[1]
+		else:
+			self.posy = self.equationy.n() + origin[1]
 
 	def get_pos(self):
 		return (self.posx, self.posy)

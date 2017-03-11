@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from Tkinter    import *
-from calculs    import *
-from file       import *
-from sage import *
-
-sCENTER = W + E
+from Tkinter		  import *
+from calculs		  import *
+from file			  import *
+from import_interface import *
+from sage.all         import *
+import tkMessageBox
 
 class ResizingCanvas(Canvas):
     def __init__(self,parent,**kwargs):
@@ -65,7 +65,6 @@ class Planete_Prop_Window(Toplevel):
 		self.posx.set					("Position x : {0:0.1f}".format(float(planete.get_pos()[0])))
 		self.posy 						= StringVar()
 		self.posy.set					("Position y : {0:0.1f}".format(float(planete.get_pos()[1])))
-
 
 		self.planete_taille 			= IntVar()
 		self.planete_taille.set 		(self.planete.taille)
@@ -184,30 +183,41 @@ class Planete_Bouton(Button):
 		else:
 			self.show()
 
-
-class Error_Window(Toplevel):
-
-	def __init__(self, master, message):
-		Toplevel.__init__ 	(self)
-
-		self.title 			("PyNetes ERROR")
-		self.canvas 		= Canvas(master = self, width = 100, height = 100)
-		self.canvas.pack	()
-		self.resizable 		(width=False, height=False)
-		self.message  		= Label(master = self.canvas, text = message)
-		self.message.grid 	(row = 0, column = 0, padx = 10, pady = 10)
-
-
 class Application(Tk):
 
 	# Initialisations
-	def initApp(self):
+	def __init__(self):
+
+		Tk.__init__(self)
+
+		# Self config
+		self.tk_setPalette(background='#2d2d30', foreground='#ececec',
+               activeBackground='#212123', activeForeground="#ececec")
+
+		# Toolbar
+		self.toolbar_frame = Frame()
+
+		self.menubar = Menu(self)
+		self.config(menu = self.menubar)
+		self.importmenu = Menu(self.menubar)
+		self.importmenu.add_command(label = "import from file", command = self.import_window)
+		self.menubar.add_cascade(label = "Import", menu = self.importmenu)
+
+		self.toolbar_frame.grid(row = 0, column = 0, columnspan = 2)
+
 		# Frames canvas et liste des planètes
 		self.frame1 						= Frame()
 		self.frame2 						= Frame()
 		
+		self.WIDTH = 800
+		self.HEIGHT = 600
+		self.ORIGIN = (self.WIDTH / 2, self.HEIGHT / 2)
+		self.canvas 						= Canvas(self.frame1, 
+													 width = self.WIDTH, 
+													 height = self.HEIGHT, 
+													 bg = "#000000")  # black background
 
-		self.canvas 						= Canvas(self.frame1, width = 640, height = 480, bg = "#000000") # black background
+		self.canvas.origine = (self.WIDTH / 2, self.HEIGHT / 2)       # Origine pour la planete                             
 
 		# Variables
 		self.terre_select 					= IntVar()
@@ -219,20 +229,20 @@ class Application(Tk):
 		self.time_reglage 					= IntVar()
 
 		# Frame des reglages
-		self.reglages_frame 				= LabelFrame(self.frame2, text = "Configurations")
-		self.label_time_spinbox 			= Label(self.reglages_frame,  text = "Vitesse")
+		self.reglages_frame 				= LabelFrame(self.frame2, text = "Configurations", borderwidth = 0, padx = 5, pady = 5)
+		self.label_time_spinbox 			= Label(self.reglages_frame,  text = "Temps (x mult)")
 		self.time_spinbox   				= Spinbox(self.reglages_frame, from_ = -100, to = 100, textvariable = self.time_reglage)
 		self.time_reglage.set 				(1)
 
 		# Frame de sélection des planètes pour affichage
-		self.select_planets_frame 			= LabelFrame(self.frame2, text="Planètes")
+		self.select_planets_frame 			= LabelFrame(self.frame2, text="Planètes", pady = 5)
 		self.planetes 						= []
 		self.boutons_planetes 				= []
 		self.selected_planetes 				= []
 		self.planetes_noms    				= []
 
 		# Frame de création des planètes
-		self.create_planets_frame 			= LabelFrame(self.frame2,           text = "Création")
+		self.create_planets_frame 			= LabelFrame(self.frame2,           text = "Création", borderwidth = 0, padx = 5, pady = 5)
 		self.label_create_taille 			= Label(self.create_planets_frame,  text = "Taille")
 		self.create_taille 					= Entry(self.create_planets_frame,  textvariable = self.custom_taille)
 		self.label_create_distance 			= Label(self.create_planets_frame,  text = "Distance")
@@ -245,16 +255,16 @@ class Application(Tk):
 															     		command = self.ajouter_planete)
 
 
-		self.predef_planets_frame 			= LabelFrame(self.frame2,           text = "Planet predef")
+		self.predef_planets_frame 			= LabelFrame(self.frame2,           text = "Planet predef", borderwidth = 0, padx = 5, pady = 5)
 		self.bouton_create_terre 			= Button(self.predef_planets_frame, text = "T", command = self.ajouter_planete_terre)
 		self.bouton_create_soleil   		= Button(self.predef_planets_frame, text = "S", command = self.ajouter_planete_soleil)
 
 		# Placements widgets
-		self.frame1.grid 					(row = 0, column = 0)
+		self.frame1.grid 					(row = 1, column = 0)
 
 		self.canvas.grid 					(row = 0, column = 0)
 
-		self.frame2.grid 					(row = 0, column = 1)
+		self.frame2.grid 					(row = 1, column = 1)
 
 		self.reglages_frame.grid 			(row = 0, column = 0)
 		self.label_time_spinbox.grid		(row = 0, column = 0, sticky = W)
@@ -312,8 +322,6 @@ class Application(Tk):
 		# Recommencez après 5 ms
 		self.after 		(5, self.time)
 
-
-
 	def animation(self):
 		compteur = 0
 		while compteur < len(self.selected_planetes):
@@ -323,11 +331,11 @@ class Application(Tk):
 			self.canvas.delete 				(planete.pyimage)
 			self.canvas.delete 				(planete.nom_pyimage)
 
-			planete.actualiser_position 	(force = True)
+			planete.actualiser_position 	(self.ORIGIN)
 
 			planete.pyimage 				= self.canvas.draw_planet(planete)
 			planete.nom_pyimage 			= self.canvas.create_text(planete.get_pos()[0] - len(planete.nom) / 2, 
-											  planete.get_pos()[1] - planete.taille / 2 - HEIGHT / 35, 
+											  planete.get_pos()[1] - planete.taille / 2 - self.HEIGHT / 35, 
 											  text = planete.nom, fill = "#ffffff")
 
 			compteur += 1
@@ -335,14 +343,13 @@ class Application(Tk):
 		self.canvas.update_idletasks()
 		self.after(6, self.animation)
 
-
-
 	def ajouter_planete(self, terre = false, soleil = false):
 
 		# Si le nom de la planète est déjà pris
 		if self.custom_nom.get() in self.planetes_noms:
 			# On affiche une erreur
-			Error_Window	(self, message = "{} existe déjà.".format(self.custom_nom.get()))
+			tkMessageBox.showwarning("Nom invalide", 
+						  "{} existe déjà.".format(self.custom_nom.get()))
 			return 1
 
 		# On crée la planète correspondante aux données du GUI
@@ -368,7 +375,6 @@ class Application(Tk):
 		self.selected_planetes.append 	(planete)
 		# On crée le bouton associé à la planète
 		self.ajouter_bouton_planete 	(planete)
-
 
 	def ajouter_bouton_planete(self, planete):
 
@@ -398,19 +404,46 @@ class Application(Tk):
 
 		self.after 								(16, self.refresh_planetes)
 
-	def update(self):
-		pass
+	def import_window(self):
+
+		self.importw = ImportWindow(self)
+		# Lorsque la fenêtre sera fermée, on importera les planètes
+		self.importw.protocol("WM_DELETE_WINDOW", self.get_imported_planetes)
+
+	def get_imported_planetes(self):
+		self.importw.destroy()
+
+		if(not self.importAnswer == 0):
+			# On sauvegarde les anciennes valeurs de l'utilisteur
+			old_ct = self.custom_taille.get()
+			old_d  = self.custom_distance.get()
+			old_v  = self.custom_vitesse.get()
+			old_n  = self.custom_nom.get()
+
+			for planete in self.importAnswer:
+				# On crée les planètes
+				self.custom_taille.set 		(planete.taille)
+				self.custom_distance.set 	(planete.distanceUA)
+				self.custom_vitesse.set 	(planete.vitesseAng)
+				self.custom_nom.set 		(planete.nom)
+
+				self.ajouter_planete(planete)
+
+			# On remet les anciennes valeurs
+			self.custom_taille.set 		(old_ct)
+			self.custom_distance.set 	(old_d)
+			self.custom_vitesse.set 	(old_v)
+			self.custom_nom.set 		(old_n)
+
 
 	def run(self):
 		self.time 				()
 		self.animation 			()
 		self.refresh_planetes	()
-		self.update 			()
 
 def main():
 
 	process = Application 	()
-	process.initApp 		()
 
 	process.run 			()
 
