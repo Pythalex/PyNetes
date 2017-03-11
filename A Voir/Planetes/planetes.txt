@@ -1,0 +1,3 @@
+Nom;taille;distance_etoile;vitesse_angulaire;couleur_rouge;couleur_vert;couleur_bleu;equationx;equationy
+Terre;5;1;1.99e-7;000;000;255;distanceUA*cos(vitesseAng*t);distanceUA*sin(vitesseAng*t)
+Soleil;15;0;0;255;000;000;0;0
