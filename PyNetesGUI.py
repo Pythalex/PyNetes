@@ -253,7 +253,7 @@ class Application(Tk):
 		self.UA_reglage.set 				(UA)
 
 		# Frame de sélection des planètes pour affichage
-		self.select_planets_frame 			= LabelFrame(self.frame2, text="Planètes", pady = 5)
+		self.select_planets_frame 			= LabelFrame(self.frame2, text="Astres", pady = 5)
 		self.planetes 						= []
 		self.boutons_planetes 				= []
 		self.selected_planetes 				= []
