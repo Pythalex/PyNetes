@@ -1,3 +1,10 @@
-Nom;taille;distance_etoile;vitesse_angulaire;couleur;equationx;equationy
+Nom;rayon;distance_etoile;vitesse_angulaire;couleur;equationx;equationy
+Mercure;3;0.387;8.178e-7;#918c92;self.distanceUA*cos(self.vitesseAng*t);self.distanceUA*sin(self.vitesseAng*t)
+Venus;4.75;0.723;3.236e-7;#e1e0dc;self.distanceUA*cos(self.vitesseAng*t);self.distanceUA*sin(self.vitesseAng*t)
 Terre;5;1;1.99e-7;#a5a5ff;self.distanceUA*cos(self.vitesseAng*t);self.distanceUA*sin(self.vitesseAng*t)
-Soleil;15;0;0;#fff000;0;0
+Mars;3.5;1.52;1.0563e-7;#e3bc7b;self.distanceUA*cos(self.vitesseAng*t);self.distanceUA*sin(self.vitesseAng*t)
+Jupiter;20;5.203;1.677e-8;#edaa7d;self.distanceUA*cos(self.vitesseAng*t);self.distanceUA*sin(self.vitesseAng*t)
+Saturne;18;9.554;6.7473e-9;#d2af77;self.distanceUA*cos(self.vitesseAng*t);self.distanceUA*sin(self.vitesseAng*t)
+Uranus;10;19.1891;2.3687e-9;#86a3b5;self.distanceUA*cos(self.vitesseAng*t);self.distanceUA*sin(self.vitesseAng*t)
+Neptune;9;30.103;1.2061e-9;#6eafff;self.distanceUA*cos(self.vitesseAng*t);self.distanceUA*sin(self.vitesseAng*t)
+Soleil;35;0;0;#fff000;0;0

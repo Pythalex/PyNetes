@@ -7,7 +7,7 @@ import file
 
 class ImportWindow(Toplevel):
 
-	def __init__(self, master):
+	def __init__(self):
 		Toplevel.__init__(self)
 		self.title("Importation planetes")
 
@@ -21,14 +21,17 @@ class ImportWindow(Toplevel):
 		# Crée un bouton de check pour chaque planète dans le fichier planetes.txt
 		for planete in planetes:
 			id     = IntVar()
-			bouton = Checkbutton(master   = self.boutons_frame,
-								 text     = planete.nom,
-								 variable = id)
+			bouton = Checkbutton(master     = self.boutons_frame,
+								 text       = planete.nom,
+								 variable   = id,
+								 foreground = "#ffffff",
+								 selectcolor= "#000000")
 			bouton.var = id
 			bouton.planete = planete
 
 			self.boutons.append(bouton)
 
+	def show(self):
 		row = 0
 		for bouton in self.boutons:
 			bouton.grid(row = row, column = 0)
@@ -40,9 +43,11 @@ class ImportWindow(Toplevel):
 		self.bouton_valide.grid(row = row, column = 0,
 						  columnspan = 2, padx = 5)
 
-		self.master = master
-		self.master.importAnswer = 0 # Valeur de retour pour l'application principale
+		self.importAnswer = 0 # Valeur de retour pour l'application principale
 
+		self.deiconify()
+		self.wait_window()
+		return self.importAnswer
 
 	def valider(self):
 		self.planetes_a_ajouter = []
@@ -52,7 +57,7 @@ class ImportWindow(Toplevel):
 			if bouton.var.get():
 				self.planetes_a_ajouter.append(bouton.planete)
 
-		self.master.importAnswer = self.planetes_a_ajouter
+		self.importAnswer = self.planetes_a_ajouter
 		self.destroy()
 
 	def read_file(self):

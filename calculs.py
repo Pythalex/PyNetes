@@ -9,11 +9,13 @@ from sage.functions.trig import *
 
 t = 0                             # variable de temps
 timecount = 0
-UA        = 100                    # UA <-> px
+UA        = 200                   # UA <-> px
+UAKM      = 149597887.5           # km <-> UA
 TIMESPEED = 1                     # Accélération du temps
-NBPLANETE = 0
 
 days      = 0
+years     = 0
+bissextile= False
 x         = var('x')
 
 class Planete(object):
@@ -21,8 +23,8 @@ class Planete(object):
 	def __init__(self, nom, taille, distance_Etoile, vitesseAng):
 		# Propritété planète
 		self.taille     = taille
-		self.distanceUA = distance_Etoile * UA          # en UA
-		self.distancekm = self.distanceUA * 149597887.5 # en km
+		self.distanceUA = distance_Etoile               # en UA
+		self.distancekm = self.distanceUA * UAKM        # en km
 		self.vitesseAng = vitesseAng
 		self.nom        = nom
 		self.nom_pyimage= -1
@@ -53,18 +55,19 @@ class Planete(object):
 	def get_equation(self):
 		return (self.equationx, self.equationy)
 
-	def actualiser_position(self, origin):
+	def actualiser_position(self):
 		# Si la vérification des types est activée et les équations sont valides
 		# Ou si le forcemode est activé
+		global UA
 
 		if(self.equationx.has(x)):
-			self.posx = self.equationx(t).n() + origin[0]
+			self.posx = UA*self.equationx(t).n()
 		else:
-			self.posx = self.equationx.n() + origin[0]
+			self.posx = UA*self.equationx.n()
 		if(self.equationy.has(x)):
-			self.posy = self.equationy(t).n() + origin[1]
+			self.posy = UA*self.equationy(t).n()
 		else:
-			self.posy = self.equationy.n() + origin[1]
+			self.posy = UA*self.equationy.n()
 
 	def get_pos(self):
 		return (self.posx, self.posy)
@@ -78,11 +81,37 @@ def time_actualise(TIMESPEED):
 	global t
 	global days
 	global timecount
+	global years
+	global bissextile
 
 	res = 0.0054 * TIMESPEED
 	t += res # On compense le temps d'appel de la fonction par un petit ajout au temps
 	timecount += res
 
-	if(int(timecount) % 86400 == 0): # Si une journée est passée
-		days += int(timecount) // 86400
-		timecount = 0
+	print(t, days, years)
+
+	if(int(timecount) / 86400 > 1): # Si une journée est passée
+		dayspassed = int(timecount) // 86400
+		days += dayspassed
+		timecount -= dayspassed * 86400
+		if days >= 365 and not bissextile:
+			setyears(years + 1)
+			days   = 0
+			if years % 4 == 0 and not years % 100 == 0 or years % 400 == 0:
+				bissextile = True
+		elif days >= 366 and bissextile:
+			setyears(years + 1)
+			days   = 0
+			bissextile = False
+
+"""
+	Global variables changes
+"""
+
+def setUA(value):
+	global UA
+	UA = value
+
+def setyears(value):
+	global years
+	years = value
