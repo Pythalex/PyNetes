@@ -74,6 +74,14 @@ class Planete(object):
 
 
 """
+	Global variables changes
+"""
+
+def setUA(value):
+	global UA
+	UA = value
+
+"""
 	Actualisation du temps
 """
 def time_actualise(TIMESPEED):
@@ -88,30 +96,20 @@ def time_actualise(TIMESPEED):
 	t += res # On compense le temps d'appel de la fonction par un petit ajout au temps
 	timecount += res
 
-	print(t, days, years)
-
 	if(int(timecount) / 86400 > 1): # Si une journée est passée
 		dayspassed = int(timecount) // 86400
 		days += dayspassed
 		timecount -= dayspassed * 86400
 		if days >= 365 and not bissextile:
-			setyears(years + 1)
+			years += 1
 			days   = 0
 			if years % 4 == 0 and not years % 100 == 0 or years % 400 == 0:
 				bissextile = True
 		elif days >= 366 and bissextile:
-			setyears(years + 1)
+			years += 1
 			days   = 0
 			bissextile = False
 
-"""
-	Global variables changes
-"""
-
-def setUA(value):
-	global UA
-	UA = value
-
-def setyears(value):
+def return_year():
 	global years
-	years = value
+	return years
