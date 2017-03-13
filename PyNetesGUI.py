@@ -216,8 +216,8 @@ class Application(Tk):
 		self.menubar = Menu(self)
 		self.config(menu = self.menubar)
 		self.importmenu = Menu(self.menubar)
-		self.importmenu.add_command(label = "import from file", command = self.import_window)
-		self.menubar.add_cascade(label = "Import", menu = self.importmenu)
+		self.importmenu.add_command(label = "Importer depuis un fichier", command = self.import_window)
+		self.menubar.add_cascade(label = "Importation", menu = self.importmenu)
 
 		self.toolbar_frame.grid(row = 0, column = 0, columnspan = 2)
 
@@ -231,7 +231,10 @@ class Application(Tk):
 		self.canvas 						= Canvas(self.frame1, 
 													 width = self.WIDTH, 
 													 height = self.HEIGHT, 
-													 bg = "#000000")  # black background                      
+													 bg = "#000000")  # black background
+
+		self.fond 							= PhotoImage(file="Image/background.png")
+		self.fondCanvas = self.canvas.create_image			(self.WIDTH/2, self.HEIGHT/2, image=self.fond)                      
 
 		# Variables
 		self.terre_select 					= IntVar()
@@ -244,8 +247,8 @@ class Application(Tk):
 		self.UA_reglage                     = IntVar()
 
 		# Frame des reglages
-		self.reglages_frame 				= LabelFrame(self.frame2, text = "Configurations", borderwidth = 0, padx = 5, pady = 5)
-		self.label_time_spinbox 			= Label(self.reglages_frame,  text = "Temps (x mult)")
+		self.reglages_frame 				= LabelFrame(self.frame2, text = "Configurations", borderwidth = 3, padx = 5, pady = 5)
+		self.label_time_spinbox 			= Label(self.reglages_frame,  text = "Vitesse x ")
 		self.time_spinbox   				= Spinbox(self.reglages_frame, from_ = -100000000000, to = 100000000000, textvariable = self.time_reglage)
 		self.time_reglage.set 				(1)
 		self.label_UA_spinbox 			    = Label(self.reglages_frame,  text = "UA (pixels)")
@@ -253,14 +256,14 @@ class Application(Tk):
 		self.UA_reglage.set 				(UA)
 
 		# Frame de sélection des planètes pour affichage
-		self.select_planets_frame 			= LabelFrame(self.frame2, text="Astres", pady = 5)
+		self.select_planets_frame 			= LabelFrame(self.frame2, borderwidth = 3, text="Astres", pady = 5)
 		self.planetes 						= []
 		self.boutons_planetes 				= []
 		self.selected_planetes 				= []
 		self.planetes_noms    				= []
 
 		# Frame de création des planètes
-		self.create_planets_frame 			= LabelFrame(self.frame2,           text = "Création", borderwidth = 0, padx = 5, pady = 5)
+		self.create_planets_frame 			= LabelFrame(self.frame2,           text = "Création", borderwidth = 3, padx = 5, pady = 5)
 		self.label_create_taille 			= Label(self.create_planets_frame,  text = "Taille")
 		self.create_taille 					= Entry(self.create_planets_frame,  textvariable = self.custom_taille)
 		self.label_create_distance 			= Label(self.create_planets_frame,  text = "Distance")
@@ -271,9 +274,6 @@ class Application(Tk):
 		self.create_nom 					= Entry(self.create_planets_frame,  textvariable = self.custom_nom)
 		self.bouton_create 					= Button(self.create_planets_frame, text = "Créer", 
 															     		command = self.ajouter_planete)
-
-
-		self.predef_planets_frame 			= LabelFrame(self.frame2,           text = "Planet predef", borderwidth = 0, padx = 5, pady = 5)
 
 		# Placements widgets
 		self.frame1.grid 					(row = 1, column = 0)
@@ -291,25 +291,23 @@ class Application(Tk):
 		self.select_planets_frame.grid 		(row = 1, column = 0)
 
 		self.create_planets_frame.grid 		(row = 2, column = 0)
-		self.label_create_taille.grid 		(row = 0, column = 0, sticky = W)
-		self.create_taille.grid 			(row = 0, column = 1)
-		self.label_create_distance.grid 	(row = 1, column = 0, sticky = W)
-		self.create_distance.grid 			(row = 1, column = 1)
-		self.label_create_vitesse.grid 		(row = 2, column = 0, sticky = W)
-		self.create_vitesse.grid 			(row = 2, column = 1)
-		self.label_create_nom.grid 			(row = 3, column = 0, sticky = W)
-		self.create_nom.grid 				(row = 3, column = 1)
+		self.label_create_nom.grid 			(row = 0, column = 0, sticky = W)
+		self.create_nom.grid 				(row = 0, column = 1)
+		self.label_create_taille.grid 		(row = 1, column = 0, sticky = W)
+		self.create_taille.grid 			(row = 1, column = 1)
+		self.label_create_distance.grid 	(row = 2, column = 0, sticky = W)
+		self.create_distance.grid 			(row = 2, column = 1)
+		self.label_create_vitesse.grid 		(row = 3, column = 0, sticky = W)
+		self.create_vitesse.grid 			(row = 3, column = 1)
 		self.bouton_create.grid 			(row = 4, column = 0, columnspan = 2)
 
-		self.predef_planets_frame.grid 		(row = 3, column = 0)
-
 		# UI id
-		self.echelleUA       = -1
-		self.echelleUAlimits = [-1, -1]
-		self.echelleUAlabel  = -1
+		self.echelleUA       				= -1
+		self.echelleUAlimits 				= [-1, -1]
+		self.echelleUAlabel  				= -1
 
-		self.originLabel     = -1
-		self.timeLabel       = -1
+		self.originLabel    				= -1
+		self.timeLabel       				= -1
 		 
 
 		# Variables de simulation
@@ -317,46 +315,53 @@ class Application(Tk):
 		self.zoom                           = 1 # 100%
 
 		# Binds
-		self.canvas.is_focus = False
-		self.canvas_binds()
+		self.canvas.is_focus 				= False
+		self.canvas_binds					()
+
+	def mod_cav(self, x, y):
+		self.canvas.move 					(self.fondCanvas, x, y)
+	"""
+	def zoom_cav(self, zoomx):
+		zoom_img = self.fond.zoom(1, 1)
+		self.canvas.itemconfig(self.fondCanvas, image=zoom_img)
+		"""
 
 	""" Initialise les commandes sur le canvas """
 	def canvas_binds(self):
-		self.canvas.focus_set()
+		self.canvas.focus_set	()
 
 		# focuses
-		self.canvas.bind("<Enter>",  self.focus)
-		self.canvas.bind("<Leave>",  self.unfocus)
+		self.canvas.bind 		("<Enter>",  self.focus)
+		self.canvas.bind 		("<Leave>",  self.unfocus)
 
 		# Zoom
-		self.bind("<MouseWheel>", lambda event : self.change_zoom(event)) # windows scroll up & down
-		self.bind("<Button-4>",   lambda event : self.change_zoom(event)) # Linux   scroll up
-		self.bind("<Button-5>",   lambda event : self.change_zoom(event)) # Linux   scroll down
+		self.bind 				("<Button-4>", lambda event : self.change_zoom(event)) # scroll up
+		self.bind 				("<Button-5>", lambda event : self.change_zoom(event)) # scroll down
 
 		# move
-		self.canvas.bind("<Button-1>",   lambda event : self.start_movein(event))
-		self.canvas.bind("<B1-Motion>",  lambda event : self.end_movein(event))     # Mouvement dans le canvas
-		# self.canvas.bind("<B1-Motion>", command = )
+		self.canvas.bind 		("<Button-1>",   lambda event : self.start_movein(event))
+		self.canvas.bind 		("<B1-Motion>",  lambda event : self.end_movein(event))     # Mouvement dans le canvas
 
 	# Commandes
 	""" focus le canvas pour le zoom """
 	def focus(self, event):
-		self.canvas.is_focus = True
+		self.canvas.is_focus 	= True
 
 	""" unfocus le canvas pour interdire le zoom """
 	def unfocus(self, event):
-		self.canvas.is_focus = False
+		self.canvas.is_focus 	= False
 
 	def start_movein(self, event):
-		self.movex = event.x
-		self.movey = event.y
+		self.movex 				= event.x
+		self.movey 				= event.y
 
 	def end_movein(self, event):
-		origin0 = self.ORIGIN[0] + (event.x - self.movex)
-		origin1 = self.ORIGIN[1] + (event.y - self.movey)
-		self.ORIGIN = (origin0, origin1)
-		self.movex = event.x
-		self.movey = event.y
+		origin0 				= self.ORIGIN[0] + (event.x - self.movex)
+		origin1 				= self.ORIGIN[1] + (event.y - self.movey)
+		self.ORIGIN 			= (origin0, origin1)
+		self.movex 				= event.x
+		self.movey 				= event.y
+		self.mod_cav			((400 - origin0) * 0.1, (300 - origin1) * 0.1)
 
 	def change_zoom(self, event):
 		if(not self.canvas.is_focus):
@@ -373,6 +378,7 @@ class Application(Tk):
 			self.zoom = 0.1
 		else:
 			self.zoom += modif
+			#self.zoom_cav(modif)
 
 
 	# Methodes
@@ -401,48 +407,50 @@ class Application(Tk):
 
 			planete.pyimage 				= self.canvas.draw_planet(planete, self.ORIGIN, self.zoom)
 
-			x = planete.get_pos()[0] * self.zoom + self.ORIGIN[0] - (len(planete.nom) / 2)
-			y = planete.get_pos()[1] * self.zoom + self.ORIGIN[1] - planete.taille * self.zoom - self.HEIGHT / 35
+			x 								= planete.get_pos()[0] * self.zoom + self.ORIGIN[0] - (len(planete.nom) / 2)
+			y 								= planete.get_pos()[1] * self.zoom + self.ORIGIN[1] - planete.taille * self.zoom - self.HEIGHT / 35
 
 			planete.nom_pyimage 			= self.canvas.create_text(x, y, text = planete.nom, fill = "#ffffff")
 											  
-			compteur += 1
+			compteur 						+= 1
 
-		self.canvas.update_idletasks()
-		self.after(6, self.animation)
+		self.canvas.update_idletasks		()
+		self.after 							(6, self.animation)
 
-	def ajouter_planete(self):
+	def ajouter_planete(self, imPlanete = False):
 
 		# Si le nom de la planète est déjà pris
 		if self.custom_nom.get() in self.planetes_noms:
 			# On affiche une erreur
-			tkMessageBox.showwarning("Nom invalide", 
-						  "{} existe déjà.".format(self.custom_nom.get()))
+			tkMessageBox.showwarning 		("Nom invalide", "{} existe déjà.".format(self.custom_nom.get()))
 			return 1
 
 		# On crée la planète correspondante aux données du GUI
-		planete 						= Planete(self.custom_nom.get(), 
-						  					float(self.custom_taille.get()), 
-						  					float(self.custom_distance.get()), 
-						  					float(self.custom_vitesse.get()))
+		if not imPlanete:
+			planete 						= Planete(self.custom_nom.get(), 
+						  						float(self.custom_taille.get()), 
+						  						float(self.custom_distance.get()), 
+						  						float(self.custom_vitesse.get()))
+		else:
+			planete = imPlanete
 
-		equation 						= (planete.distanceUA * cos(planete.vitesseAng * x),
-							 	 		  planete.distanceUA * sin(planete.vitesseAng * x))
-		planete.set_equation			(equation[0], equation[1])
+		equation 							= (planete.distanceUA * cos(planete.vitesseAng * x),
+							 	 		       planete.distanceUA * sin(planete.vitesseAng * x))
+		planete.set_equation				(equation[0], equation[1])
 
 		# On l'ajoute à la liste des planetes
-		self.planetes.append 			(planete)
-		self.selected_planetes.append 	(planete)
+		self.planetes.append 				(planete)
+		self.selected_planetes.append 		(planete)
 		# On crée le bouton associé à la planète
-		self.ajouter_bouton_planete 	(planete)
+		self.ajouter_bouton_planete 		(planete)
 
 	def ajouter_bouton_planete(self, planete):
 
-		self.planetes_noms.append		(planete.nom)
+		self.planetes_noms.append			(planete.nom)
 		# On ajoute un nouveau bouton à la fenêtre
-		self.boutons_planetes.append	(Planete_Bouton(self.select_planets_frame, planete, len(self.boutons_planetes), self))
+		self.boutons_planetes.append		(Planete_Bouton(self.select_planets_frame, planete, len(self.boutons_planetes), self))
 		# On affiche le bouton
-		self.boutons_planetes[-1].show()
+		self.boutons_planetes[-1].show 		()
 
 	def refresh_planetes(self):
 		for bouton in self.boutons_planetes:
@@ -496,12 +504,12 @@ class Application(Tk):
 		# Afficher origine
 
 		self.originLabel = self.canvas.create_text(self.WIDTH / 50, self.HEIGHT - self.HEIGHT / 50,
-												   text = "origine : ( {} ; {} )".format(self.ORIGIN[0], self.ORIGIN[1]),
+												   text = "Origine : ( {} ; {} )".format(self.ORIGIN[0], self.ORIGIN[1]),
 												   fill = "#ffffff", anchor = W)
 
 		# Afficher temps
-		self.timeLabel = self.canvas.create_text(self.WIDTH - len("years passed : ")*3 - len(str(years))*4, self.HEIGHT - self.HEIGHT / 50,
-												 text = "years passed : {}".format(years), fill = "#ffffff")
+		self.timeLabel = self.canvas.create_text(self.WIDTH - len("Années passées : ")*3 - len(str(return_year()))*4, self.HEIGHT - self.HEIGHT / 50,
+												 text = "Années passées : {}".format(return_year()), fill = "#ffffff")
 
 		# reload
 		self.after(50, self.refresh_UI) 
@@ -514,27 +522,9 @@ class Application(Tk):
 	def get_imported_planetes(self):
 
 		if(not self.importAnswer == 0):
-			# On sauvegarde les anciennes valeurs de l'utilisteur
-			old_ct = self.custom_taille.get()
-			old_d  = self.custom_distance.get()
-			old_v  = self.custom_vitesse.get()
-			old_n  = self.custom_nom.get()
-
 			for planete in self.importAnswer:
 				# On crée les planètes
-				self.custom_taille.set 		(planete.taille)
-				self.custom_distance.set 	(planete.distanceUA)
-				self.custom_vitesse.set 	(planete.vitesseAng)
-				self.custom_nom.set 		(planete.nom)
-
-				self.ajouter_planete()
-
-			# On remet les anciennes valeurs
-			self.custom_taille.set 		(old_ct)
-			self.custom_distance.set 	(old_d)
-			self.custom_vitesse.set 	(old_v)
-			self.custom_nom.set 		(old_n)
-
+				self.ajouter_planete(planete)
 
 	def run(self):
 		self.time 				()
