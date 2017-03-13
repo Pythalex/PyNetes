@@ -31,8 +31,19 @@ class ImportWindow(Toplevel):
 
 			self.boutons.append(bouton)
 
+		self.tous   	 = IntVar()
+		self.bouton_tous = Checkbutton(master = self.boutons_frame,
+								 text       = "Tout",
+								 variable   = self.tous,
+								 foreground = "#ffffff",
+								 selectcolor= "#000000")
+		self.bouton_tous.grid(row = 0, column = 0,
+						  	  columnspan = 2, padx = 5)
+		Label(master = self.boutons_frame, text = "-----").grid(row = 1, column = 0,
+						  										columnspan = 2, padx = 5)
+
 	def show(self):
-		row = 0
+		row = 2
 		for bouton in self.boutons:
 			bouton.grid(row = row, column = 0)
 			row += 1
@@ -51,11 +62,16 @@ class ImportWindow(Toplevel):
 
 	def valider(self):
 		self.planetes_a_ajouter = []
+		self.planetes_a_suppr 	= []
 
 		# Pour chaque checkbutton dans la fenêtre, si le bouton est on, la planète est ajoutée
 		for bouton in self.boutons:
-			if bouton.var.get():
+			if self.tous.get():
 				self.planetes_a_ajouter.append(bouton.planete)
+			elif bouton.var.get():
+				self.planetes_a_ajouter.append(bouton.planete)
+			else:
+				self.planetes_a_suppr.append(bouton.planete)
 
 		self.importAnswer = self.planetes_a_ajouter
 		self.destroy()
