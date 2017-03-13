@@ -233,8 +233,8 @@ class Application(Tk):
 													 height = self.HEIGHT, 
 													 bg = "#000000")  # black background
 
-		self.fond 							= PhotoImage(file="Image/background.png")
-		self.fondCanvas = self.canvas.create_image			(self.WIDTH/2, self.HEIGHT/2, image=self.fond)                      
+		self.fond 							= PhotoImage(file="Images/background.png")
+		self.fondPyimage = self.canvas.create_image		(self.ORIGIN[0], self.ORIGIN[1], image = self.fond)                      
 
 		# Variables
 		self.terre_select 					= IntVar()
@@ -318,14 +318,6 @@ class Application(Tk):
 		self.canvas.is_focus 				= False
 		self.canvas_binds					()
 
-	def mod_cav(self, x, y):
-		self.canvas.move 					(self.fondCanvas, x, y)
-	"""
-	def zoom_cav(self, zoomx):
-		zoom_img = self.fond.zoom(1, 1)
-		self.canvas.itemconfig(self.fondCanvas, image=zoom_img)
-		"""
-
 	""" Initialise les commandes sur le canvas """
 	def canvas_binds(self):
 		self.canvas.focus_set	()
@@ -361,7 +353,16 @@ class Application(Tk):
 		self.ORIGIN 			= (origin0, origin1)
 		self.movex 				= event.x
 		self.movey 				= event.y
-		self.mod_cav			((400 - origin0) * 0.1, (300 - origin1) * 0.1)
+		#self.mod_cav			((400 - origin0) * 0.1, (300 - origin1) * 0.1)
+
+	#def mod_cav(self, x, y):
+		#self.canvas.move 		(self.fondPyimage, x, y)
+
+	"""
+	def zoom_cav(self, zoomx):
+		zoom_img = self.fond.zoom(1, 1)
+		self.canvas.itemconfig(self.fondCanvas, image=zoom_img)
+		"""
 
 	def change_zoom(self, event):
 		if(not self.canvas.is_focus):
@@ -395,6 +396,9 @@ class Application(Tk):
 		self.after 		(5, self.time)
 
 	def animation(self):
+
+		self.refresh_UI()
+
 		compteur = 0
 		while compteur < len(self.selected_planetes):
 
@@ -415,6 +419,7 @@ class Application(Tk):
 			compteur 						+= 1
 
 		self.canvas.update_idletasks		()
+
 		self.after 							(6, self.animation)
 
 	def ajouter_planete(self, imPlanete = False):
@@ -472,12 +477,13 @@ class Application(Tk):
 
 		self.after 								(16, self.refresh_planetes)
 
+	""" Appelé par animation avant l'affichage des planètes """
 	def refresh_UI(self):
 		global UA
 		global years
 
 		liste = [self.echelleUA, self.echelleUAlimits, self.echelleUAlabel, 
-		   self.originLabel, self.timeLabel]
+		   self.originLabel, self.timeLabel, self.fondPyimage]
 
 		# deletes
 		for id in liste:
@@ -487,32 +493,31 @@ class Application(Tk):
 			else:
 				self.canvas.delete(id)
 
+		self.fondPyimage = self.canvas.create_image  (self.ORIGIN[0], self.ORIGIN[1], image = self.fond)
+
 		# Afficher échelle UA
-		setUA(self.UA_reglage.get())
-		self.echelleUA = self.canvas.create_line(self.WIDTH / 20, self.HEIGHT / 50,
-												 self.WIDTH / 20 + UA * self.zoom, 
-												 self.HEIGHT / 50,
-												 fill = "#ffffff")
+		setUA                                        (self.UA_reglage.get())
+		self.echelleUA = self.canvas.create_line     (self.WIDTH / 20, self.HEIGHT / 50,
+												      self.WIDTH / 20 + UA * self.zoom, 
+												      self.HEIGHT / 50,
+												      fill = "#ffffff")
 		self.echelleUAlimits = [
-			self.canvas.create_line(self.WIDTH / 20, self.HEIGHT / 60, 
-						            self.WIDTH / 20, self.HEIGHT / 40, fill = "#ffffff"),
-			self.canvas.create_line(self.WIDTH / 20 + UA * self.zoom, self.HEIGHT / 60, 
-						            self.WIDTH / 20 + UA * self.zoom, self.HEIGHT / 40, fill = "#ffffff")
+			self.canvas.create_line                  (self.WIDTH / 20, self.HEIGHT / 60, 
+						                              self.WIDTH / 20, self.HEIGHT / 40, fill = "#ffffff"),
+			self.canvas.create_line                  (self.WIDTH / 20 + UA * self.zoom, self.HEIGHT / 60, 
+						                              self.WIDTH / 20 + UA * self.zoom, self.HEIGHT / 40, fill = "#ffffff")
 			]
 		self.echelleUAlabel = self.canvas.create_text((self.WIDTH / 20 + (self.WIDTH / 20 + UA * self.zoom)) / 2, self.HEIGHT / 25,
 													  text = "UA", fill = "#ffffff", font = "LucidaConsole 12")
 		# Afficher origine
 
-		self.originLabel = self.canvas.create_text(self.WIDTH / 50, self.HEIGHT - self.HEIGHT / 50,
-												   text = "Origine : ( {} ; {} )".format(self.ORIGIN[0], self.ORIGIN[1]),
-												   fill = "#ffffff", anchor = W)
+		self.originLabel = self.canvas.create_text   (self.WIDTH / 50, self.HEIGHT - self.HEIGHT / 50,
+												      text = "Origine : ( {} ; {} )".format(self.ORIGIN[0], self.ORIGIN[1]),
+												      fill = "#ffffff", anchor = W)
 
 		# Afficher temps
-		self.timeLabel = self.canvas.create_text(self.WIDTH - len("Années passées : ")*3 - len(str(return_year()))*4, self.HEIGHT - self.HEIGHT / 50,
-												 text = "Années passées : {}".format(return_year()), fill = "#ffffff")
-
-		# reload
-		self.after(50, self.refresh_UI) 
+		self.timeLabel = self.canvas.create_text     (self.WIDTH - len("Années passées : ")*3 - len(str(return_year()))*4, self.HEIGHT - self.HEIGHT / 50,
+												      text = "Années passées : {}".format(return_year()), fill = "#ffffff")
 
 	def import_window(self):
 
@@ -530,7 +535,6 @@ class Application(Tk):
 		self.time 				()
 		self.animation 			()
 		self.refresh_planetes	()
-		self.refresh_UI         ()
 
 def main():
 
