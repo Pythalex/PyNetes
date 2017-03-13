@@ -264,16 +264,17 @@ class Application(Tk):
 
 		# Frame de création des planètes
 		self.create_planets_frame 			= LabelFrame(self.frame2,           text = "Création", borderwidth = 3, padx = 5, pady = 5)
+		self.label_create_nom 				= Label(self.create_planets_frame,  text = "Nom")
+		self.create_nom 					= Entry(self.create_planets_frame,  textvariable = self.custom_nom)
 		self.label_create_taille 			= Label(self.create_planets_frame,  text = "Taille")
 		self.create_taille 					= Entry(self.create_planets_frame,  textvariable = self.custom_taille)
 		self.label_create_distance 			= Label(self.create_planets_frame,  text = "Distance")
 		self.create_distance 				= Entry(self.create_planets_frame,  textvariable = self.custom_distance)
 		self.label_create_vitesse 			= Label(self.create_planets_frame,  text = "Vitesse")
 		self.create_vitesse 				= Entry(self.create_planets_frame,  textvariable = self.custom_vitesse)
-		self.label_create_nom 				= Label(self.create_planets_frame,  text = "Nom")
-		self.create_nom 					= Entry(self.create_planets_frame,  textvariable = self.custom_nom)
 		self.bouton_create 					= Button(self.create_planets_frame, text = "Créer", 
 															     		command = self.ajouter_planete)
+		self.bind 		("<Return>", self.ajouter_planete)
 
 		# Placements widgets
 		self.frame1.grid 					(row = 1, column = 0)
