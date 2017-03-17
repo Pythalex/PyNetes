@@ -478,6 +478,11 @@ class Application(Tk):
 
 		self.after 								(16, self.refresh_planetes)
 
+	def calcule_forces_planetes(self):
+		for planete in self.planetes:
+			planete.actualiser_forces(self.planetes)
+		self.after(500, self.calcule_forces_planetes)
+
 	""" Appelé par animation avant l'affichage des planètes """
 	def refresh_UI(self):
 		global UA
@@ -536,6 +541,7 @@ class Application(Tk):
 		self.time 				()
 		self.animation 			()
 		self.refresh_planetes	()
+		self.calcule_forces_planetes()
 
 def main():
 

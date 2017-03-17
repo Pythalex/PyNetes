@@ -17,9 +17,10 @@ def lire_save(filename):
 
 	for elms in liste:
 		planete = Planete(elms[0], float(elms[1]), float(elms[2]), float(elms[3]))
-		planete.rouge = int(elms[4])
-		planete.vert = int(elms[5])
-		planete.bleu = int(elms[6])
+		planete.masse = float(elms[4])
+		planete.rouge = int(elms[5])
+		planete.vert = int(elms[6])
+		planete.bleu = int(elms[7])
 		planetes.append(planete)
 
 	return planetes
