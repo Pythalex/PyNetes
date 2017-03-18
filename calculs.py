@@ -9,7 +9,8 @@ from sage.symbolic.ring import SR
 
 # Variables
 
-t = 0                             # variable de temps
+t         = 0                     # variable de temps
+t_inst    = 0                     # Temps immédiat - Calcul des trajectoires temps réel
 timecount = 0
 UA        = 200                   # UA <-> px
 UAKM      = 149597887.5           # km <-> UA
@@ -26,8 +27,7 @@ class Planete(object):
 	def __init__(self, nom, taille, distance_Etoile, vitesseAng, masse = 6e24):
 		# Propriété planète
 		self.taille     = taille
-		self.distanceUA = distance_Etoile               # en UA
-		self.distancekm = self.distanceUA * UAKM        # en km
+		self.distanceUA = distance_Etoile # en UA
 		self.vitesseAng = vitesseAng
 		self.nom        = nom
 		self.nom_pyimage= -1
@@ -38,13 +38,23 @@ class Planete(object):
 		self.vert		= 255
 		self.bleu		= 255
 
-		# Propriété coordonnées
-		self.equationx  = 0
-		self.equationy  = 0
-		self.posx       = 0
-		self.posy       = 0
-		self.oldposx    = 0
-		self.oldposy    = 0
+		# Propriété coordonnées et mécanique
+ 		self.equationx       = SR(0)
+		self.equationy       = SR(0)
+		self.acceleration    = SR(0)
+		self.oldacceleration = SR(0)
+		self.vitesse         = (SR(0), SR(0))
+		self.oldvitesse      = (SR(0), SR(0))
+		self.position        = (SR(0), SR(0))
+		self.oldposition     = (SR(0), SR(0))
+		self.posx            = self.distanceUA * UA
+		self.posy            = 0
+		self.oldposx         = 0
+		self.oldposy         = 0
+		self.real_posx       = self.distanceUA * UAKM
+		self.real_posy       = 0
+		self.oldreal_posx    = 0
+		self.oldreal_posy    = 0
 
 		# Propriété Tkinter
 		self.pyimage    = -1
@@ -62,6 +72,13 @@ class Planete(object):
 		return (self.equationx, self.equationy)
 
 	def actualiser_forces(self, planetes):
+		global t_inst 
+
+		# Backup des vitesses et positions actuelles pour constantes d'intégrales
+		print(type(self.vitesse[0]), type(self.vitesse[1]))
+		self.oldvitesse = (fvalue(self.vitesse[0], t_inst), fvalue(self.vitesse[1], t_inst))
+		self.oldpostion = (fvalue(self.position[0], t_inst), fvalue(self.position[1], t_inst))
+		# Calcul des forces
 		print "Actualize forces"
 		forces = []
 		for planete in planetes:
@@ -78,32 +95,40 @@ class Planete(object):
 		print "sum forces"
 		forces = sum(forces)
 		print "Calculating acceleration vector"
-		self.acceleration = SR(forces / self.masse)
+		self.acceleration = (SR(forces / self.masse)*cos(atan2(self.real_posy, self.real_posx)),
+			SR(forces / self.masse)*sin(atan2(self.real_posy, self.real_posx)))
 		print "Calculating speed vector"
-		self.vitesse      = self.acceleration.integrate(x)
-		vecpos            = self.vitesse.integrate(x)
+		vecspeed          = (self.acceleration[0].integrate(x), self.acceleration[1].integrate(x))
+		self.vitesse      = (vecspeed + self.oldvitesse[0], vecspeed + self.oldvitesse[1])
+		print self.vitesse
+		vecpos            = (self.vitesse[0].integrate(x)*cos(atan2(self.real_posy, self.real_posx)),
+			self.vitesse[1].integrate(x)*sin(atan2(self.real_posy, self.real_posx)))
 		print "Calculating position vector"
-		self.position     = (vecpos + self.oldposx, vecpos + self.oldposy)
-		self.set_equation(self.position[0]*cos(atan2(self.get_pos()[1], self.get_pos()[0])), 
-			self.position[1]*sin(atan2(self.get_pos()[1], self.get_pos()[0])))
+		self.position     = (vecpos[0] + self.oldreal_posx, vecpos[1] + self.oldreal_posy)
+		# reset du temps immédiat
+		reset_t_inst()
 
 	def actualiser_position(self):
 		global UA
+		global UAKM
+
+		self.oldreal_posx = self.real_posx
+		self.oldreal_posy = self.real_posy
+
+		self.real_posx = fvalue(self.equationx[0], t_inst)
+		self.real_posy = fvalue(self.equationy[1], t_inst)
 
 		self.oldposx = self.posx
 		self.oldposy = self.posy
 
-		if(self.equationx.has(x)):
-			self.posx = UA*self.equationx(t).n()
-		else:
-			self.posx = UA*self.equationx.n()
-		if(self.equationy.has(x)):
-			self.posy = UA*self.equationy(t).n()
-		else:
-			self.posy = UA*self.equationy.n()
+		self.posx = self.real_posx / UAKM * UA
+		self.posy = self.real_posy / UAKM * UA
 
 	def get_pos(self):
 		return (self.posx, self.posy)
+
+	def get_real_pos(self):
+		return (self.real_posx, self.real_posy)
 
 
 """
@@ -114,12 +139,16 @@ def setUA(value):
 	global UA
 	UA = value
 
-"""
-	Actualisation du temps
-"""
+def reset_t_inst():
+	t_inst = 0
+
 def time_actualise(TIMESPEED):
+	"""
+		Actualisation de la variable de temps
+	"""
 
 	global t
+	global t_inst
 	global days
 	global timecount
 	global years
@@ -127,6 +156,7 @@ def time_actualise(TIMESPEED):
 
 	res = 0.0054 * TIMESPEED
 	t += res # On compense le temps d'appel de la fonction par un petit ajout au temps
+	t_inst += res
 	timecount += res
 
 	if(int(timecount) / 86400 > 1): # Si une journée est passée
@@ -152,8 +182,46 @@ def abs(n):
 		return -n
 	return n
 
-def distance(point1, point2):
-	print("points, ", point1, point2)
-	dist = (sqrt((point2[0]-point1[0])**2 + (point2[1]-point1[1])**2)).n()
+def distance(planete1, planete2):
+	x1, y1 = planete1.get_pos()
+	x2, y2 = planete2.get_pos()
+	print("planete {}, ({}, {})", planete1, x1, y1)
+	print("planete {}, ({}, {})", planete2, x2, y2)
+
+	dist = (sqrt((x2 - x1)**2 + (y2 - y1)**2)).n()
 	print("distance in function -> ", dist)
 	return dist
+
+def fvalue(function, *args):
+	"""
+		Retourne la valeur d'une fonction sage avec le 
+		nombre d'arguments inférieurs ou égal au nombre
+		d'arguments passés par l'utilisateur, si le nombre
+		d'arguments est inférieur au nombre de variables
+		de la fonction, l'expression littérale est retournée
+
+		EXAMPLE::
+		sage: f = 2*x
+		sage: fvalue(f, 2, 5)
+		4
+
+		---------------------------------------------------
+
+		@param : function la fonction sage à calculer
+				 *args la liste des arguments de variables
+		@return: f(*args - args en trop)
+	"""
+
+	if len(args) == len(function.variables()):
+		return function(*args)
+
+	elif len(function.variables()) == 0:
+		args = ()
+
+	for variable in function.variables():
+		args = args[:-1]
+	
+	if(len(args) > 0):
+		return function(*args)
+	else:
+		return function()
