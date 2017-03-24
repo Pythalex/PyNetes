@@ -84,6 +84,9 @@ def setUA(value):
 	global UA
 	UA = value
 
+def getUA():
+	return UA
+
 """
 	Actualisation du temps
 """

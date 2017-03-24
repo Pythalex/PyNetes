@@ -56,7 +56,7 @@ def _draw_planet(self, planete, origin, zoom):
 Canvas.draw_planet = _draw_planet
 
 def _draw_trajectoire(self, planete, origin, zoom):
-	r    = planete.distanceUA * UA * zoom
+	r    = planete.distanceUA * getUA() * zoom
 	x    = fvalue(planete.equationx, 0) * zoom + origin[0]
 	y    = fvalue(planete.equationy, 0) * zoom + origin[1]
 	color = "#DDDDDD"
@@ -264,6 +264,10 @@ class Application(Tk):
 		self.label_UA_spinbox 			    = Label(self.reglages_frame,  text = "UA (pixels)")
 		self.UA_spinbox   				    = Spinbox(self.reglages_frame, from_ = 1, to = 2000, textvariable = self.UA_reglage)
 		self.UA_reglage.set 				(UA)
+		# Reglages trajectoire
+		self.afficherTrajectoire            = IntVar()
+		self.afficherTrajectoire.set        (1)
+		self.boutonAfficherTrajectoire      = Checkbutton(self.reglages_frame, text = "Afficher trajectoire", variable = self.afficherTrajectoire)
 
 		# Frame de sélection des planètes pour affichage
 		self.select_planets_frame 			= LabelFrame(self.frame2, borderwidth = 3, text="Astres", pady = 5)
@@ -286,6 +290,7 @@ class Application(Tk):
 															     		command = self.ajouter_planete)
 		self.bind 		("<Return>", self.ajouter_planete)
 
+		# Reglages zoom
 		self.la_frame_des_petits_bouton_pour_la_vitesse_du_zoom = LabelFrame(self.frame2, text = "Vitesse zoom", borderwidth = 3, padx = 5, pady = 5)
 		self.le_premier_petit_bouton_qui_met_la_vitesse_du_zoom_en_super_rapide = Checkbutton(self.la_frame_des_petits_bouton_pour_la_vitesse_du_zoom, text = "Rapide", variable = self.zoom_rapide, foreground = "#ffffff", selectcolor= "#000000")
 		self.et_le_deuxieme_petit_bouton_qui_met_la_vitesse_du_zoom_en_plu_lent = Checkbutton(self.la_frame_des_petits_bouton_pour_la_vitesse_du_zoom, text = "Lent", variable = self.zoom_lent, foreground = "#ffffff", selectcolor= "#000000")
@@ -302,6 +307,7 @@ class Application(Tk):
 		self.time_spinbox.grid 				(row = 0, column = 1)
 		self.label_UA_spinbox.grid          (row = 1, column = 0, sticky = W)
 		self.UA_spinbox.grid                (row = 1, column = 1)
+		self.boutonAfficherTrajectoire.grid (row = 2, column = 0, columnspan = 2, sticky = W)
 
 		self.select_planets_frame.grid 		(row = 1, column = 0)
 
@@ -431,9 +437,10 @@ class Application(Tk):
 
 			self.canvas.delete 				(planete.pyimage)
 			self.canvas.delete 				(planete.nom_pyimage)
-			self.canvas.delete              (planete.trajectoire)
 
-			planete.trajectoire             = self.canvas.draw_trajectoire(planete, self.ORIGIN, self.zoom)
+			if(self.afficherTrajectoire.get()):
+				self.canvas.delete              (planete.trajectoire)
+				planete.trajectoire             = self.canvas.draw_trajectoire(planete, self.ORIGIN, self.zoom)
 
 			planete.actualiser_position 	()
 
