@@ -55,6 +55,14 @@ def _draw_planet(self, planete, origin, zoom):
 	return self.create_oval(x-r, y-r, x+r, y+r, fill = color)
 Canvas.draw_planet = _draw_planet
 
+def _draw_trajectoire(self, planete, origin, zoom):
+	r    = planete.distanceUA * UA * zoom
+	x    = fvalue(planete.equationx, 0) * zoom + origin[0]
+	y    = fvalue(planete.equationy, 0) * zoom + origin[1]
+	color = "#DDDDDD"
+	return self.create_oval(x-r, y-r, x+r, y+r, fill = '', width = 1, outline = color)
+Canvas.draw_trajectoire = _draw_trajectoire	
+
 class Planete_Prop_Window(Toplevel):
 
 	def __init__(self, master, planete, bouton, root):
@@ -423,6 +431,9 @@ class Application(Tk):
 
 			self.canvas.delete 				(planete.pyimage)
 			self.canvas.delete 				(planete.nom_pyimage)
+			self.canvas.delete              (planete.trajectoire)
+
+			planete.trajectoire             = self.canvas.draw_trajectoire(planete, self.ORIGIN, self.zoom)
 
 			planete.actualiser_position 	()
 

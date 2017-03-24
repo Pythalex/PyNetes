@@ -44,6 +44,9 @@ class Planete(object):
 		self.pyimage    = -1
 		self.delete     = False
 
+		# Trajectoire sur le canvas
+		self.trajectoire= -1
+
 	def set_equation(self, equationx, equationy):
 		if(type(equationx) == str):
 			equationx = eval(equationx)
@@ -113,3 +116,37 @@ def time_actualise(TIMESPEED):
 def return_year():
 	global years
 	return years
+
+def fvalue(function, *args):
+	"""
+		Retourne la valeur d'une fonction sage avec le 
+		nombre d'arguments inférieurs ou égal au nombre
+		d'arguments passés par l'utilisateur, si le nombre
+		d'arguments est inférieur au nombre de variables
+		de la fonction, l'expression littérale est retournée
+
+		EXAMPLE::
+		sage: f = 2*x
+		sage: fvalue(f, 2, 5)
+		4
+
+		---------------------------------------------------
+
+		@param : function la fonction sage à calculer
+				 *args la liste des arguments de variables
+		@return: f(*args - args en trop)
+	"""
+
+	if len(args) == len(function.variables()):
+		return function(*args)
+
+	elif len(function.variables()) == 0:
+		args = ()
+
+	for variable in function.variables():
+		args = args[:-1]
+	
+	if(len(args) > 0):
+		return function(*args)
+	else:
+		return function()
