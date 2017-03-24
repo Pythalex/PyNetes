@@ -236,7 +236,7 @@ class Application(Tk):
 		self.fond 							= PhotoImage(file="Images/background.png")
 		self.fondPyimage = self.canvas.create_image		(self.ORIGIN[0], self.ORIGIN[1], image = self.fond)                      
 
-		# Variables
+		# Variables
 		self.terre_select 					= IntVar()
 		self.satelite_select 				= IntVar()
 		self.custom_taille 					= StringVar()
@@ -245,6 +245,8 @@ class Application(Tk):
 		self.custom_nom 					= StringVar()
 		self.time_reglage 					= IntVar()
 		self.UA_reglage                     = IntVar()
+		self.zoom_rapide                    = IntVar()
+		self.zoom_lent                      = IntVar()
 
 		# Frame des reglages
 		self.reglages_frame 				= LabelFrame(self.frame2, text = "Configurations", borderwidth = 3, padx = 5, pady = 5)
@@ -262,7 +264,7 @@ class Application(Tk):
 		self.selected_planetes 				= []
 		self.planetes_noms    				= []
 
-		# Frame de création des planètes
+		# Frame de création des planètes
 		self.create_planets_frame 			= LabelFrame(self.frame2,           text = "Création", borderwidth = 3, padx = 5, pady = 5)
 		self.label_create_nom 				= Label(self.create_planets_frame,  text = "Nom")
 		self.create_nom 					= Entry(self.create_planets_frame,  textvariable = self.custom_nom)
@@ -275,6 +277,10 @@ class Application(Tk):
 		self.bouton_create 					= Button(self.create_planets_frame, text = "Créer", 
 															     		command = self.ajouter_planete)
 		self.bind 		("<Return>", self.ajouter_planete)
+
+		self.la_frame_des_petits_bouton_pour_la_vitesse_du_zoom = LabelFrame(self.frame2, text = "Vitesse zoom", borderwidth = 3, padx = 5, pady = 5)
+		self.le_premier_petit_bouton_qui_met_la_vitesse_du_zoom_en_super_rapide = Checkbutton(self.la_frame_des_petits_bouton_pour_la_vitesse_du_zoom, text = "Rapide", variable = self.zoom_rapide, foreground = "#ffffff", selectcolor= "#000000")
+		self.et_le_deuxieme_petit_bouton_qui_met_la_vitesse_du_zoom_en_plu_lent = Checkbutton(self.la_frame_des_petits_bouton_pour_la_vitesse_du_zoom, text = "Lent", variable = self.zoom_lent, foreground = "#ffffff", selectcolor= "#000000")
 
 		# Placements widgets
 		self.frame1.grid 					(row = 1, column = 0)
@@ -301,6 +307,10 @@ class Application(Tk):
 		self.label_create_vitesse.grid 		(row = 3, column = 0, sticky = W)
 		self.create_vitesse.grid 			(row = 3, column = 1)
 		self.bouton_create.grid 			(row = 4, column = 0, columnspan = 2)
+
+		self.la_frame_des_petits_bouton_pour_la_vitesse_du_zoom.grid(row = 3, column = 0)
+		self.le_premier_petit_bouton_qui_met_la_vitesse_du_zoom_en_super_rapide.grid(row = 0, column = 0)
+		self.et_le_deuxieme_petit_bouton_qui_met_la_vitesse_du_zoom_en_plu_lent.grid(row = 0, column = 1)
 
 		# UI id
 		self.echelleUA       				= -1
@@ -368,16 +378,22 @@ class Application(Tk):
 	def change_zoom(self, event):
 		if(not self.canvas.is_focus):
 			return 1
+		if self.zoom_lent.get() == 1:
+			modif1 = 0.02
+		elif self.zoom_rapide.get() == 1:
+			modif1 = 0.5
+		else:
+			modif1 = 0.1
 		modif = 0
-		# Gerer les events linux et windows
+		# Gerer les events linux
 		if event.num == 5 or event.delta == -120:
-			modif -= 0.1
+			modif -= modif1
 		elif event.num == 4 or event.delta == 120:
-			modif += 0.1
+			modif += modif1
 		else:
 			pass
 		if(self.zoom + modif <= 0):
-			self.zoom = 0.1
+			self.zoom = 0.02
 		else:
 			self.zoom += modif
 			#self.zoom_cav(modif)
@@ -444,7 +460,7 @@ class Application(Tk):
 							 	 		       planete.distanceUA * sin(planete.vitesseAng * x))
 		planete.set_equation				(equation[0], equation[1])
 
-		# On l'ajoute à la liste des planetes
+		# On l'ajoute à la liste des planetes
 		self.planetes.append 				(planete)
 		self.selected_planetes.append 		(planete)
 		# On crée le bouton associé à la planète
