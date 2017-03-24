@@ -149,8 +149,8 @@ class Planete_Prop_Window(Toplevel):
 		self.after 						(30, self.refresh)
 
 	def centrer(self):
-		origin0 = self.root.ORIGIN[0] - self.planete.get_pos()[0]
-		origin1 = self.root.ORIGIN[1] - self.planete.get_pos()[1]
+		origin0 = - (self.planete.get_pos()[0] * self.root.zoom) + self.root.WIDTH  / 2
+		origin1 = - (self.planete.get_pos()[1] * self.root.zoom) + self.root.HEIGHT / 2
 		self.root.ORIGIN = (origin0, origin1)
 
 class Planete_Bouton(Button):
