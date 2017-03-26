@@ -6,6 +6,9 @@ from import_interface import *
 from sage.all         import *
 import tkMessageBox
 
+centrage = False
+centrage_planete = 0
+
 class ResizingCanvas(Canvas):
     def __init__(self,parent,**kwargs):
         Canvas.__init__(self,parent,**kwargs)
@@ -60,19 +63,22 @@ def _draw_trajectoire(self, planete, origin, zoom):
 	x    = fvalue(planete.equationx, 0) * zoom + origin[0]
 	y    = fvalue(planete.equationy, 0) * zoom + origin[1]
 	color = "#DDDDDD"
-	return self.create_oval(x-r, y-r, x+r, y+r, fill = '', width = 1, outline = color)
+	return self.create_oval(x-r, y-r, x+r, y+r, fill = '', width = 0.5, outline = color)
 Canvas.draw_trajectoire = _draw_trajectoire	
 
 class Planete_Prop_Window(Toplevel):
 
 	def __init__(self, master, planete, bouton, root):
 		Toplevel.__init__(self)
+		global centrage_planete
+
 		self.master                     = master
 		self.root 					    = root
 		self.planete 					= planete
 		self.planete_name  				= Label(master = self, text = planete.nom)
 
 		# Affichage
+		self.title("Propriete de " + self.planete.nom)
 		self.posx 						= StringVar()
 		self.posx.set					("Position x : {0:0.1f}".format(float(planete.get_pos()[0])))
 		self.posy 						= StringVar()
@@ -89,6 +95,8 @@ class Planete_Prop_Window(Toplevel):
 
 		self.boutonbleu 				= IntVar()
 		self.boutonbleu.set 			(self.planete.bleu)
+
+		self.centrea 				= IntVar()
 
 
 		self.planete_pos_x 				= Label(master = self, textvariable = self.posx)
@@ -132,26 +140,48 @@ class Planete_Prop_Window(Toplevel):
 		self.label_spin_bleu.grid		(row = 8, column = 0)
 		self.spin_bleu.grid				(row = 8, column = 1)
 
-		self.goto                       = Button(self, text = "Centrer", command = self.centrer)
-		self.goto.grid                  (row = 9, column = 0, columnspan = 2)
+		self.goto                       = Checkbutton(self, text = "Centrer", variable = self.centrea, foreground = "#ffffff", selectcolor= "#000000")
+		self.goto.grid                  (row = 10, column = 0, columnspan = 2)	
+
+		if self.planete == centrage_planete:
+				self.centrea.set(1)	
 
 		self.refresh()
 
 	def refresh(self):
-		self.planete.rouge 				= self.boutonrouge.get()
-		self.planete.vert 				= self.boutonvert.get()
-		self.planete.bleu 				= self.boutonbleu.get()
-		self.posx.set 					("Position x : {0:0.1f}".format(float(self.planete.get_pos()[0])))
-		self.posy.set 					("Position y : {0:0.1f}".format(float(self.planete.get_pos()[1])))
+		global centrage
+		global centrage_planete
+		try:
+			self.planete.rouge 				= self.boutonrouge.get()
+		except ValueError:
+			self.planete.rouge 				= 0
 
-		self.planete.taille 			= self.planete_taille.get()
+		try:
+			self.planete.vert 				= self.boutonvert.get()
+		except ValueError:
+			self.planete.vert 				= 0
 
-		self.after 						(30, self.refresh)
+		try:
+			self.planete.bleu 				= self.boutonbleu.get()
+		except ValueError:
+			self.planete.bleu 				= 0
 
-	def centrer(self):
-		origin0 = - (self.planete.get_pos()[0] * self.root.zoom) + self.root.WIDTH  / 2
-		origin1 = - (self.planete.get_pos()[1] * self.root.zoom) + self.root.HEIGHT / 2
-		self.root.ORIGIN = (origin0, origin1)
+		self.posx.set 						("Position x : {0:0.1f}".format(float(self.planete.get_pos()[0])))
+		self.posy.set 						("Position y : {0:0.1f}".format(float(self.planete.get_pos()[1])))
+		try:
+			self.planete.taille 			= self.planete_taille.get()
+		except ValueError:
+			self.planete.taille 			= 0
+		
+		if(self.centrea.get()):
+			centrage = True
+			centrage_planete = self.planete
+		else:
+			if self.planete == centrage_planete:
+				centrage = False
+				self.root.title("PyNetes")
+
+		self.after 							(30, self.refresh)
 
 class Planete_Bouton(Button):
 
@@ -176,7 +206,7 @@ class Planete_Bouton(Button):
 		# Frame boutons
 		self.master			= master
 
-		self.grid			(row = length, column = 0)
+		self.grid			(row = length-length%3, column = length%3)
 
 		self.configure 		(text = self.planete.nom, command = self.afficher_fenetre)
 
@@ -214,6 +244,8 @@ class Application(Tk):
 
 		Tk.__init__(self)
 
+		global centrage_planete
+
 		# Self config
 		self.tk_setPalette(background='#2d2d30', foreground='#ececec',
                activeBackground='#212123', activeForeground="#ffffff")
@@ -228,13 +260,13 @@ class Application(Tk):
 		self.menubar.add_cascade(label = "Importation", menu = self.importmenu)
 
 		self.toolbar_frame.grid(row = 0, column = 0, columnspan = 2)
-
+		self.title("PyNetes")
 		# Frames canvas et liste des planètes
 		self.frame1 						= Frame()
 		self.frame2 						= Frame()
 		
-		self.WIDTH = 800
-		self.HEIGHT = 600
+		self.WIDTH = 900
+		self.HEIGHT = 700
 		self.ORIGIN = (self.WIDTH / 2, self.HEIGHT / 2)
 		self.canvas 						= Canvas(self.frame1, 
 													 width = self.WIDTH, 
@@ -247,14 +279,15 @@ class Application(Tk):
 		# Variables
 		self.terre_select 					= IntVar()
 		self.satelite_select 				= IntVar()
-		self.custom_taille 					= StringVar()
-		self.custom_distance 				= StringVar()
-		self.custom_vitesse 				= StringVar()
-		self.custom_nom 					= StringVar()
 		self.time_reglage 					= IntVar()
 		self.UA_reglage                     = IntVar()
 		self.zoom_rapide                    = IntVar()
 		self.zoom_lent                      = IntVar()
+		self.custom_taille 					= StringVar()
+		self.custom_distance 				= StringVar()
+		self.custom_vitesse 				= StringVar()
+		self.custom_nom 					= StringVar()
+		self.commande 						= StringVar()
 
 		# Frame des reglages
 		self.reglages_frame 				= LabelFrame(self.frame2, text = "Configurations", borderwidth = 3, padx = 5, pady = 5)
@@ -267,7 +300,7 @@ class Application(Tk):
 		# Reglages trajectoire
 		self.afficherTrajectoire            = IntVar()
 		self.afficherTrajectoire.set        (1)
-		self.boutonAfficherTrajectoire      = Checkbutton(self.reglages_frame, text = "Afficher trajectoire", variable = self.afficherTrajectoire)
+		self.boutonAfficherTrajectoire      = Checkbutton(self.reglages_frame, text = "Afficher trajectoire", variable = self.afficherTrajectoire, foreground = "#ffffff", selectcolor= "#000000")
 
 		# Frame de sélection des planètes pour affichage
 		self.select_planets_frame 			= LabelFrame(self.frame2, borderwidth = 3, text="Astres", pady = 5)
@@ -291,9 +324,9 @@ class Application(Tk):
 		self.bind 		("<Return>", self.ajouter_planete)
 
 		# Reglages zoom
-		self.la_frame_des_petits_bouton_pour_la_vitesse_du_zoom = LabelFrame(self.frame2, text = "Vitesse zoom", borderwidth = 3, padx = 5, pady = 5)
-		self.le_premier_petit_bouton_qui_met_la_vitesse_du_zoom_en_super_rapide = Checkbutton(self.la_frame_des_petits_bouton_pour_la_vitesse_du_zoom, text = "Rapide", variable = self.zoom_rapide, foreground = "#ffffff", selectcolor= "#000000")
-		self.et_le_deuxieme_petit_bouton_qui_met_la_vitesse_du_zoom_en_plu_lent = Checkbutton(self.la_frame_des_petits_bouton_pour_la_vitesse_du_zoom, text = "Lent", variable = self.zoom_lent, foreground = "#ffffff", selectcolor= "#000000")
+		self.frame_zoom = LabelFrame(self.reglages_frame, text = "Vitesse zoom", borderwidth = 3, padx = 5, pady = 5)
+		self.b_zoom_rapide = Checkbutton(self.frame_zoom, text = "Rapide", variable = self.zoom_rapide, foreground = "#ffffff", selectcolor= "#000000")
+		self.b_zoom_lent = Checkbutton(self.frame_zoom, text = "Lent", variable = self.zoom_lent, foreground = "#ffffff", selectcolor= "#000000")
 
 		# Placements widgets
 		self.frame1.grid 					(row = 1, column = 0)
@@ -307,7 +340,7 @@ class Application(Tk):
 		self.time_spinbox.grid 				(row = 0, column = 1)
 		self.label_UA_spinbox.grid          (row = 1, column = 0, sticky = W)
 		self.UA_spinbox.grid                (row = 1, column = 1)
-		self.boutonAfficherTrajectoire.grid (row = 2, column = 0, columnspan = 2, sticky = W)
+		self.boutonAfficherTrajectoire.grid (row = 3, column = 0, columnspan = 2)
 
 		self.select_planets_frame.grid 		(row = 1, column = 0)
 
@@ -322,9 +355,9 @@ class Application(Tk):
 		self.create_vitesse.grid 			(row = 3, column = 1)
 		self.bouton_create.grid 			(row = 4, column = 0, columnspan = 2)
 
-		self.la_frame_des_petits_bouton_pour_la_vitesse_du_zoom.grid(row = 3, column = 0)
-		self.le_premier_petit_bouton_qui_met_la_vitesse_du_zoom_en_super_rapide.grid(row = 0, column = 0)
-		self.et_le_deuxieme_petit_bouton_qui_met_la_vitesse_du_zoom_en_plu_lent.grid(row = 0, column = 1)
+		self.frame_zoom.grid(row = 2, column = 0, columnspan = 2)
+		self.b_zoom_rapide.grid(row = 0, column = 0)
+		self.b_zoom_lent.grid(row = 0, column = 1)
 
 		# UI id
 		self.echelleUA       				= -1
@@ -373,6 +406,9 @@ class Application(Tk):
 		self.movey 				= event.y
 
 	def end_movein(self, event):
+		global centrage
+		centrage = False
+		self.title("PyNetes")
 		origin0 				= self.ORIGIN[0] + (event.x - self.movex)
 		origin1 				= self.ORIGIN[1] + (event.y - self.movey)
 		self.ORIGIN 			= (origin0, origin1)
@@ -419,7 +455,10 @@ class Application(Tk):
 		global TIMESPEED
 		#print TIMESPEED
 		# Update du temps
-		TIMESPEED 		= self.time_reglage.get()
+		try:
+			TIMESPEED 		= self.time_reglage.get()
+		except ValueError:
+			TIMESPEED = 0
 		# Incrémenter compteur temps
 		time_actualise 	(TIMESPEED)
 
@@ -516,6 +555,14 @@ class Application(Tk):
 	def refresh_UI(self):
 		global UA
 		global years
+		global centrage
+		global centrage_planete
+
+		if centrage:
+			centrage_ori_x = - (centrage_planete.get_pos()[0] * self.zoom) + self.WIDTH  / 2
+			centrage_ori_y = - (centrage_planete.get_pos()[1] * self.zoom) + self.HEIGHT / 2
+			self.ORIGIN = (centrage_ori_x, centrage_ori_y)
+			self.title("PyNetes : " + centrage_planete.nom + " : Position : (" + str(centrage_ori_x) + ", "+ str(centrage_ori_y) + ")")
 
 		liste = [self.echelleUA, self.echelleUAlimits, self.echelleUAlabel, 
 		   self.originLabel, self.timeLabel, self.fondPyimage]
@@ -531,7 +578,10 @@ class Application(Tk):
 		self.fondPyimage = self.canvas.create_image  (self.ORIGIN[0], self.ORIGIN[1], image = self.fond)
 
 		# Afficher échelle UA
-		setUA                                        (self.UA_reglage.get())
+		try:
+			setUA                                    (self.UA_reglage.get())
+		except ValueError:
+			setUA                                    (0)
 		self.echelleUA = self.canvas.create_line     (self.WIDTH / 20, self.HEIGHT / 50,
 												      self.WIDTH / 20 + UA * self.zoom, 
 												      self.HEIGHT / 50,
