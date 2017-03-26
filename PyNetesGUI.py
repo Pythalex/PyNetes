@@ -450,7 +450,7 @@ class Application(Tk):
 
 	def reset_zoom(self):
 		self.zoom = 1
-		return zoom
+		return self.zoom
 
 	def reset_centrage(self):
 		global centrage
