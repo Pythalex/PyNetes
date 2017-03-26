@@ -8,7 +8,7 @@ import tkMessageBox
 
 centrage 			= False
 centrage_planete 	= 0
-version 			= "PyNetes (build 24)"
+version 			= "PyNetes (build 25)"
 
 # Du décimal vers de l'héxa.
 def conv(chiffre):
@@ -244,13 +244,13 @@ class Application(Tk):
 		self.importmenu 					= Menu(self.menubar)
 		self.importmenu.add_command			(label = "Importer depuis un fichier", command = self.import_window)
 		self.viewmenu   = Menu				(self.menubar)
-		self.viewmenu.add_command			(label = "Reset Zoom",     command = self.reset_zoom)
-		self.viewmenu.add_command			(label = "Reset Centrage", command = self.reset_centrage)
+		self.viewmenu.add_command			(label = "Réinitialiser le zoom",     command = self.reset_zoom)
+		self.viewmenu.add_command			(label = "Réinitialiser le centrage", command = self.reset_centrage)
 		self.astresmenu = Menu				(self.menubar)
 		self.astresmenu.add_command			(label = "Voir détails astres", command = self.afficheDetailsAstres)
 
 		self.menubar.add_cascade			(label = "Importation", menu = self.importmenu)
-		self.menubar.add_cascade			(label = "View",        menu = self.viewmenu  )
+		self.menubar.add_cascade			(label = "Vue",        menu = self.viewmenu  )
 		self.menubar.add_cascade			(label = "Astres",      menu = self.astresmenu  )
 
 		self.toolbar_frame.grid				(row = 0, column = 0, columnspan = 2)
