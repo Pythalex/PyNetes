@@ -8,7 +8,7 @@ import tkMessageBox
 
 centrage 			= False
 centrage_planete 	= 0
-version 			= "PyNetes (build 25)"
+version 			= "PyNetes (build 26)"
 
 # Du décimal vers de l'héxa.
 def conv(chiffre):
@@ -129,6 +129,9 @@ class Planete_Prop_Window(Toplevel):
 		self.supprimer                  = Button(self, text = "Supprimer", command = self.supprimer_planete)
 		self.supprimer.grid             (row = 11, column = 0, columnspan = 2)
 
+		self.supprimer_copie_1          = Button(self, text = "Save", command = self.save_planete)
+		self.supprimer_copie_1.grid     (row = 12, column = 0, columnspan = 2)
+
 		if self.planete == centrage_planete:
 				self.centrea.set(1)	
 
@@ -168,12 +171,21 @@ class Planete_Prop_Window(Toplevel):
 				centrage = False
 				self.root.title(version)
 
-		self.after 							(30, self.refresh)
+		self.after 							(1, self.refresh)
 
 	def supprimer_planete(self):
 		if tkMessageBox.askyesno(title = "Suppression", message = "Etes-vous sur de vouloir supprimer cette planete ?"):
 			self.root.retirer_planete(self.planete)
 			self.destroy()
+
+	def save_planete(self):
+		liste = [self.planete.nom, self.planete.taille, self.planete.distanceUA, self.planete.vitesseAng, self.planete.rouge, self.planete.vert, self.planete.bleu, "self.distanceUA*cos(self.vitesseAng*t)", "self.distanceUA*sin(self.vitesseAng*t)"]
+		ecrire = open("Planetes/planetes.txt", "a")
+		ecrire.write("\n")
+		for i in range(8):
+			ecrire.write(str(liste[i]))
+			ecrire.write(";")
+		ecrire.write(str(liste[8]))
 
 class Planete_Bouton(Button):
 
@@ -330,6 +342,8 @@ class Application(Tk):
 		self.b_zoom_rapide 					= Checkbutton(self.frame_zoom, text = "Rapide", variable = self.zoom_rapide, foreground = "#ffffff", selectcolor= "#000000")
 		self.b_zoom_lent 					= Checkbutton(self.frame_zoom, text = "Lent", variable = self.zoom_lent, foreground = "#ffffff", selectcolor= "#000000")
 
+		self.full_screen 					= Button(self.frame2, text = "Plein écran ON", command = self.ad_full_screen)
+
 		# Placements widgets
 		self.frame1.grid 					(row = 1, column = 0)
 
@@ -361,6 +375,8 @@ class Application(Tk):
 		self.b_zoom_rapide.grid				(row = 0, column = 0)
 		self.b_zoom_lent.grid				(row = 0, column = 1)
 
+		self.full_screen.grid				(row = 3, column = 0)
+
 		# UI id
 		self.echelleUA       				= -1
 		self.echelleUAlimits 				= [-1, -1]
@@ -382,6 +398,19 @@ class Application(Tk):
 		self.update_idletasks				()
 		self.old_taillex 					= self.winfo_width()
 		self.old_tailley 					= self.winfo_height()
+		
+		self.fs_not = False
+
+	def ad_full_screen(self):
+		if(not self.fs_not):
+			self.geometry("%dx%d+0+0" % (self.winfo_screenwidth(), self.winfo_screenheight()))
+			self.fs_not = True
+			self.full_screen.config(text = "Plein écran OFF")
+		else:
+			self.geometry("%dx%d+100+100" % (1200, 700))
+			self.fs_not = False
+			self.full_screen.config(text = "Plein écran ON")
+
 
 	""" Initialise les commandes sur le canvas """
 	def canvas_binds(self):
@@ -677,4 +706,3 @@ def main():
 	return 0
 
 main()
-0
