@@ -8,24 +8,7 @@ import tkMessageBox
 
 centrage = False
 centrage_planete = 0
-
-class ResizingCanvas(Canvas):
-    def __init__(self,parent,**kwargs):
-        Canvas.__init__(self,parent,**kwargs)
-        self.bind 		("<Configure>", self.on_resize)
-        self.height  	= self.winfo_reqheight()
-        self.width  	= self.winfo_reqwidth()
-
-    def on_resize(self,event):
-        # determine the ratio of old width/height to new width/height
-        wscale  		= float(event.width)/self.width
-        hscale  	 	= float(event.height)/self.height
-        self.width  	= event.width
-        self.height 	= event.height
-        # resize the canvas 
-        self.config 	(width=self.width, height=self.height)
-        # rescale all the objects tagged with the "all" tag
-        self.scale 		("all",0,0,wscale,hscale)
+version = "PyNetes (build 22)"
 
 # Du décimal vers de l'héxa.
 def conv(chiffre):
@@ -151,6 +134,7 @@ class Planete_Prop_Window(Toplevel):
 	def refresh(self):
 		global centrage
 		global centrage_planete
+		global version
 		try:
 			self.planete.rouge 				= self.boutonrouge.get()
 		except ValueError:
@@ -179,7 +163,7 @@ class Planete_Prop_Window(Toplevel):
 		else:
 			if self.planete == centrage_planete:
 				centrage = False
-				self.root.title("PyNetes")
+				self.root.title(version)
 
 		self.after 							(30, self.refresh)
 
@@ -245,7 +229,8 @@ class Application(Tk):
 		Tk.__init__(self)
 
 		global centrage_planete
-
+		global version
+		
 		# Self config
 		self.tk_setPalette(background='#2d2d30', foreground='#ececec',
                activeBackground='#212123', activeForeground="#ffffff")
@@ -260,7 +245,7 @@ class Application(Tk):
 		self.menubar.add_cascade(label = "Importation", menu = self.importmenu)
 
 		self.toolbar_frame.grid(row = 0, column = 0, columnspan = 2)
-		self.title("PyNetes")
+		self.title(version)
 		# Frames canvas et liste des planètes
 		self.frame1 						= Frame()
 		self.frame2 						= Frame()
@@ -376,6 +361,11 @@ class Application(Tk):
 		self.canvas.is_focus 				= False
 		self.canvas_binds					()
 
+		# Pour redimentionner la fenètre !
+		self.update_idletasks()
+		self.old_taillex = self.winfo_width()
+		self.old_tailley = self.winfo_height()
+
 	""" Initialise les commandes sur le canvas """
 	def canvas_binds(self):
 		self.canvas.focus_set	()
@@ -407,10 +397,11 @@ class Application(Tk):
 
 	def end_movein(self, event):
 		global centrage
+		global version
 		centrage = False
-		self.title("PyNetes")
+		self.title(version)
 		origin0 				= self.ORIGIN[0] + (event.x - self.movex)
-		origin1 				= self.ORIGIN[1] + (event.y - self.movey)
+ 		origin1 				= self.ORIGIN[1] + (event.y - self.movey)
 		self.ORIGIN 			= (origin0, origin1)
 		self.movex 				= event.x
 		self.movey 				= event.y
@@ -512,7 +503,7 @@ class Application(Tk):
 						  						float(self.custom_taille.get()), 
 						  						float(self.custom_distance.get()), 
 						  						float(self.custom_vitesse.get()))
-		else :
+		else:
 			planete = importedPlanete
 
 		equation 							= (planete.distanceUA * cos(planete.vitesseAng * x),
@@ -559,12 +550,24 @@ class Application(Tk):
 		global years
 		global centrage
 		global centrage_planete
+		global version
+
+		le_super_nouveau_WIDTH = self.winfo_width() - self.old_taillex + self.WIDTH
+		le_super_nouveau_HEIGHT = self.winfo_height() - self.old_tailley + self.HEIGHT
+
+		self.canvas.config(width = le_super_nouveau_WIDTH, height = le_super_nouveau_HEIGHT)
+
+		self.WIDTH = le_super_nouveau_WIDTH
+		self.HEIGHT = le_super_nouveau_HEIGHT
+		self.old_taillex = self.winfo_width()
+		self.old_tailley = self.winfo_height()
+		
 
 		if centrage:
 			centrage_ori_x = - (centrage_planete.get_pos()[0] * self.zoom) + self.WIDTH  / 2
 			centrage_ori_y = - (centrage_planete.get_pos()[1] * self.zoom) + self.HEIGHT / 2
 			self.ORIGIN = (centrage_ori_x, centrage_ori_y)
-			self.title("PyNetes : " + centrage_planete.nom + " : Position : (" + str(centrage_ori_x) + ", "+ str(centrage_ori_y) + ")")
+			self.title(version + " : " + centrage_planete.nom + " : Position : (" + str(centrage_ori_x) + ", "+ str(centrage_ori_y) + ")")
 
 		liste = [self.echelleUA, self.echelleUAlimits, self.echelleUAlabel, 
 		   self.originLabel, self.timeLabel, self.fondPyimage]
