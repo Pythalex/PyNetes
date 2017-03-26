@@ -242,10 +242,19 @@ class Application(Tk):
 		self.config(menu = self.menubar)
 		self.importmenu = Menu(self.menubar)
 		self.importmenu.add_command(label = "Importer depuis un fichier", command = self.import_window)
+		self.viewmenu   = Menu(self.menubar)
+		self.viewmenu.add_command(label = "Reset Zoom",     command = self.reset_zoom)
+		self.viewmenu.add_command(label = "Reset Centrage", command = self.reset_centrage)
+		self.astresmenu = Menu(self.menubar)
+		self.astresmenu.add_command(label = "Voir détails astres", command = self.afficheDetailsAstres)
+
 		self.menubar.add_cascade(label = "Importation", menu = self.importmenu)
+		self.menubar.add_cascade(label = "View",        menu = self.viewmenu  )
+		self.menubar.add_cascade(label = "Astres",      menu = self.astresmenu  )
 
 		self.toolbar_frame.grid(row = 0, column = 0, columnspan = 2)
 		self.title(version)
+
 		# Frames canvas et liste des planètes
 		self.frame1 						= Frame()
 		self.frame2 						= Frame()
@@ -439,6 +448,15 @@ class Application(Tk):
 			self.zoom += modif
 			#self.zoom_cav(modif)
 
+	def reset_zoom(self):
+		self.zoom = 1
+		return zoom
+
+	def reset_centrage(self):
+		global centrage
+		centrage = False
+		self.ORIGIN = (self.WIDTH / 2, self.HEIGHT / 2)
+
 
 	# Methodes
 
@@ -620,6 +638,11 @@ class Application(Tk):
 			for planete in self.importAnswer:
 				# On crée les planètes
 				self.ajouter_planete(planete)
+
+	def afficheDetailsAstres(self):
+
+		for bouton in self.boutons_planetes:
+			bouton.afficher_fenetre()
 
 	def run(self):
 		self.time 				()
