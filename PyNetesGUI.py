@@ -546,6 +546,7 @@ class Application(Tk):
 			self.planetes.remove(planete)
 
 			if planete.bouton:
+				planete.bouton.grid_forget()
 				self.boutons_planetes.remove(planete.bouton)
 
 	def ajouter_bouton_planete(self, planete):
