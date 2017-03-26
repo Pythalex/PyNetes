@@ -6,53 +6,53 @@ from import_interface import *
 from sage.all         import *
 import tkMessageBox
 
-centrage = False
-centrage_planete = 0
-version = "PyNetes (build 22)"
+centrage 			= False
+centrage_planete 	= 0
+version 			= "PyNetes (build 24)"
 
 # Du décimal vers de l'héxa.
 def conv(chiffre):
-		def chiftolet(chiffre):
-			convertion = ["a", "b", "c", "d", "e", "f"]
-			if chiffre >= 10:
-				chiffre -= 10
-				return convertion[chiffre]
-			return chiffre
-		reste = 20
-		actu  = chiffre
-		liste = []
-		fin   = ""
-		while reste >= 16:
-			reste = actu % 16
-			actu  = actu / 16
-			liste.append(reste)
-		fin += str(chiftolet(actu))
-		for elems in liste:
-			fin += str(chiftolet(elems))
-		return fin
+	if chiffre > 255 or chiffre < 0:
+		return "FF"
+	def chiftolet(chiffre):
+		convertion = ["a", "b", "c", "d", "e", "f"]
+		if chiffre >= 10:
+			chiffre -= 10
+			return convertion[chiffre]
+		return chiffre
+	reste = 20
+	actu  = chiffre
+	liste = []
+	fin   = ""
+	while reste >= 16:
+		reste = actu % 16
+		actu  = actu / 16
+		liste.append(reste)
+	fin += str(chiftolet(actu))
+	for elems in liste:
+		fin += str(chiftolet(elems))
+	return fin
 
 def _draw_planet(self, planete, origin, zoom):
-	#print(planete.get_pos()[0] / UAKM * zoom + origin[0])
-	#print(planete.get_pos()[1] / UAKM * zoom + origin[1])
-	x    = planete.get_pos()[0] * zoom + origin[0] 
-	y    = planete.get_pos()[1] * zoom + origin[1]
-	r    = planete.taille * zoom
+	x     = planete.get_pos()[0] * zoom + origin[0] 
+	y     = planete.get_pos()[1] * zoom + origin[1]
+	r     = planete.taille * zoom
 	color = "#" + conv(planete.rouge) + conv(planete.vert) + conv(planete.bleu)
 	return self.create_oval(x-r, y-r, x+r, y+r, fill = color)
 Canvas.draw_planet = _draw_planet
 
 def _draw_trajectoire(self, planete, origin, zoom):
-	r    = planete.distanceUA * getUA() * zoom
-	x    = fvalue(planete.equationx, 0) * zoom + origin[0]
-	y    = fvalue(planete.equationy, 0) * zoom + origin[1]
+	r     = planete.distanceUA * getUA() * zoom
+	x     = fvalue(planete.equationx, 0) * zoom + origin[0]
+	y     = fvalue(planete.equationy, 0) * zoom + origin[1]
 	color = "#DDDDDD"
 	return self.create_oval(x-r, y-r, x+r, y+r, fill = '', width = 0.5, outline = color)
 Canvas.draw_trajectoire = _draw_trajectoire	
 
 class Planete_Prop_Window(Toplevel):
-
 	def __init__(self, master, planete, bouton, root):
 		Toplevel.__init__(self)
+
 		global centrage_planete
 
 		self.master                     = master
@@ -61,7 +61,7 @@ class Planete_Prop_Window(Toplevel):
 		self.planete_name  				= Label(master = self, text = planete.nom)
 
 		# Affichage
-		self.title("Propriete de " + self.planete.nom)
+		self.title						("Propriete de " + self.planete.nom)
 		self.posx 						= StringVar()
 		self.posx.set					("Position x : {0:0.1f}".format(float(planete.get_pos()[0])))
 		self.posy 						= StringVar()
@@ -79,7 +79,7 @@ class Planete_Prop_Window(Toplevel):
 		self.boutonbleu 				= IntVar()
 		self.boutonbleu.set 			(self.planete.bleu)
 
-		self.centrea 				= IntVar()
+		self.centrea 					= IntVar()
 
 
 		self.planete_pos_x 				= Label(master = self, textvariable = self.posx)
@@ -88,7 +88,7 @@ class Planete_Prop_Window(Toplevel):
 
 		self.planete_taille_label		= Label(master = self, text = "Taille")
 		self.planete_taille_value		= Spinbox(master = self, from_ = 0.001, to    = 10000000000000000, 
-									              textvariable = self.planete_taille)
+												  textvariable = self.planete_taille)
 
 
 		self.label_spin_rouge 			= Label(self, text = "Rouge")
@@ -135,6 +135,7 @@ class Planete_Prop_Window(Toplevel):
 		global centrage
 		global centrage_planete
 		global version
+
 		try:
 			self.planete.rouge 				= self.boutonrouge.get()
 		except ValueError:
@@ -158,12 +159,12 @@ class Planete_Prop_Window(Toplevel):
 			self.planete.taille 			= 0
 		
 		if(self.centrea.get()):
-			centrage = True
-			centrage_planete = self.planete
+			centrage 						= True
+			centrage_planete 				= self.planete
 		else:
 			if self.planete == centrage_planete:
-				centrage = False
-				self.root.title(version)
+				centrage 					= False
+				self.root.title				(version)
 
 		self.after 							(30, self.refresh)
 
@@ -173,7 +174,7 @@ class Planete_Bouton(Button):
 		Button.__init__(self, master = master)
 
 		# Fenêtre principale
-		self.root = root
+		self.root 			= root
 
 		# Si la planete est actuellement affiché
 		self.est_affiche 	= True
@@ -211,8 +212,8 @@ class Planete_Bouton(Button):
 
 	""" Supprime la planete et le bouton """
 	def delete(self):
-		self.to_delete = True
-		self.affiche   = False
+		self.to_delete 	 = True
+		self.affiche  	 = False
 
 	""" Change le bouton en on/off """
 	def switch(self):
@@ -233,42 +234,42 @@ class Application(Tk):
 		
 		# Self config
 		self.tk_setPalette(background='#2d2d30', foreground='#ececec',
-               activeBackground='#212123', activeForeground="#ffffff")
+			   activeBackground='#212123', activeForeground="#ffffff")
 
 		# Toolbar
-		self.toolbar_frame = Frame()
+		self.toolbar_frame 					= Frame()
 
-		self.menubar = Menu(self)
-		self.config(menu = self.menubar)
-		self.importmenu = Menu(self.menubar)
-		self.importmenu.add_command(label = "Importer depuis un fichier", command = self.import_window)
-		self.viewmenu   = Menu(self.menubar)
-		self.viewmenu.add_command(label = "Reset Zoom",     command = self.reset_zoom)
-		self.viewmenu.add_command(label = "Reset Centrage", command = self.reset_centrage)
-		self.astresmenu = Menu(self.menubar)
-		self.astresmenu.add_command(label = "Voir détails astres", command = self.afficheDetailsAstres)
+		self.menubar 						= Menu(self)
+		self.config							(menu = self.menubar)
+		self.importmenu 					= Menu(self.menubar)
+		self.importmenu.add_command			(label = "Importer depuis un fichier", command = self.import_window)
+		self.viewmenu   = Menu				(self.menubar)
+		self.viewmenu.add_command			(label = "Reset Zoom",     command = self.reset_zoom)
+		self.viewmenu.add_command			(label = "Reset Centrage", command = self.reset_centrage)
+		self.astresmenu = Menu				(self.menubar)
+		self.astresmenu.add_command			(label = "Voir détails astres", command = self.afficheDetailsAstres)
 
-		self.menubar.add_cascade(label = "Importation", menu = self.importmenu)
-		self.menubar.add_cascade(label = "View",        menu = self.viewmenu  )
-		self.menubar.add_cascade(label = "Astres",      menu = self.astresmenu  )
+		self.menubar.add_cascade			(label = "Importation", menu = self.importmenu)
+		self.menubar.add_cascade			(label = "View",        menu = self.viewmenu  )
+		self.menubar.add_cascade			(label = "Astres",      menu = self.astresmenu  )
 
-		self.toolbar_frame.grid(row = 0, column = 0, columnspan = 2)
-		self.title(version)
+		self.toolbar_frame.grid				(row = 0, column = 0, columnspan = 2)
+		self.title							(version)
 
 		# Frames canvas et liste des planètes
 		self.frame1 						= Frame()
 		self.frame2 						= Frame()
 		
-		self.WIDTH = 900
-		self.HEIGHT = 700
-		self.ORIGIN = (self.WIDTH / 2, self.HEIGHT / 2)
+		self.WIDTH 							= 900
+		self.HEIGHT 						= 700
+		self.ORIGIN 						= (self.WIDTH / 2, self.HEIGHT / 2)
 		self.canvas 						= Canvas(self.frame1, 
 													 width = self.WIDTH, 
 													 height = self.HEIGHT, 
 													 bg = "#000000")  # black background
 
 		self.fond 							= PhotoImage(file="Images/background.png")
-		self.fondPyimage = self.canvas.create_image		(self.ORIGIN[0], self.ORIGIN[1], image = self.fond)                      
+		self.fondPyimage 					= self.canvas.create_image		(self.ORIGIN[0], self.ORIGIN[1], image = self.fond)                      
 
 		# Variables
 		self.terre_select 					= IntVar()
@@ -314,13 +315,13 @@ class Application(Tk):
 		self.label_create_vitesse 			= Label(self.create_planets_frame,  text = "Vitesse")
 		self.create_vitesse 				= Entry(self.create_planets_frame,  textvariable = self.custom_vitesse)
 		self.bouton_create 					= Button(self.create_planets_frame, text = "Créer", 
-															     		command = self.ajouter_planete)
-		self.bind 		("<Return>", self.ajouter_planete)
+																 		command = self.ajouter_planete)
+		self.bind 							("<Return>", self.ajouter_planete)
 
 		# Reglages zoom
-		self.frame_zoom = LabelFrame(self.reglages_frame, text = "Vitesse zoom", borderwidth = 3, padx = 5, pady = 5)
-		self.b_zoom_rapide = Checkbutton(self.frame_zoom, text = "Rapide", variable = self.zoom_rapide, foreground = "#ffffff", selectcolor= "#000000")
-		self.b_zoom_lent = Checkbutton(self.frame_zoom, text = "Lent", variable = self.zoom_lent, foreground = "#ffffff", selectcolor= "#000000")
+		self.frame_zoom 					= LabelFrame(self.reglages_frame, text = "Vitesse zoom", borderwidth = 3, padx = 5, pady = 5)
+		self.b_zoom_rapide 					= Checkbutton(self.frame_zoom, text = "Rapide", variable = self.zoom_rapide, foreground = "#ffffff", selectcolor= "#000000")
+		self.b_zoom_lent 					= Checkbutton(self.frame_zoom, text = "Lent", variable = self.zoom_lent, foreground = "#ffffff", selectcolor= "#000000")
 
 		# Placements widgets
 		self.frame1.grid 					(row = 1, column = 0)
@@ -349,9 +350,9 @@ class Application(Tk):
 		self.create_vitesse.grid 			(row = 3, column = 1)
 		self.bouton_create.grid 			(row = 4, column = 0, columnspan = 2)
 
-		self.frame_zoom.grid(row = 2, column = 0, columnspan = 2)
-		self.b_zoom_rapide.grid(row = 0, column = 0)
-		self.b_zoom_lent.grid(row = 0, column = 1)
+		self.frame_zoom.grid				(row = 2, column = 0, columnspan = 2)
+		self.b_zoom_rapide.grid				(row = 0, column = 0)
+		self.b_zoom_lent.grid				(row = 0, column = 1)
 
 		# UI id
 		self.echelleUA       				= -1
@@ -371,9 +372,9 @@ class Application(Tk):
 		self.canvas_binds					()
 
 		# Pour redimentionner la fenètre !
-		self.update_idletasks()
-		self.old_taillex = self.winfo_width()
-		self.old_tailley = self.winfo_height()
+		self.update_idletasks				()
+		self.old_taillex 					= self.winfo_width()
+		self.old_tailley 					= self.winfo_height()
 
 	""" Initialise les commandes sur le canvas """
 	def canvas_binds(self):
@@ -407,46 +408,36 @@ class Application(Tk):
 	def end_movein(self, event):
 		global centrage
 		global version
-		centrage = False
-		self.title(version)
+		centrage 				= False
+		self.title				(version)
 		origin0 				= self.ORIGIN[0] + (event.x - self.movex)
  		origin1 				= self.ORIGIN[1] + (event.y - self.movey)
 		self.ORIGIN 			= (origin0, origin1)
 		self.movex 				= event.x
 		self.movey 				= event.y
-		#self.mod_cav			((400 - origin0) * 0.1, (300 - origin1) * 0.1)
-
-	#def mod_cav(self, x, y):
-		#self.canvas.move 		(self.fondPyimage, x, y)
-
-	"""
-	def zoom_cav(self, zoomx):
-		zoom_img = self.fond.zoom(1, 1)
-		self.canvas.itemconfig(self.fondCanvas, image=zoom_img)
-		"""
 
 	def change_zoom(self, event):
 		if(not self.canvas.is_focus):
 			return 1
 		if self.zoom_lent.get() == 1:
-			modif1 = 0.02
+			modif1 	= 0.02
 		elif self.zoom_rapide.get() == 1:
-			modif1 = 0.5
+			modif1 	= 0.5
 		else:
-			modif1 = 0.1
-		modif = 0
-		# Gerer les events linux
+			modif1 	= 0.1
+		modif 		= 0
+
 		if event.num == 5 or event.delta == -120:
 			modif -= modif1
 		elif event.num == 4 or event.delta == 120:
 			modif += modif1
 		else:
 			pass
+
 		if(self.zoom + modif <= 0):
 			self.zoom = 0.02
 		else:
 			self.zoom += modif
-			#self.zoom_cav(modif)
 
 	def reset_zoom(self):
 		self.zoom = 1
@@ -454,7 +445,7 @@ class Application(Tk):
 
 	def reset_centrage(self):
 		global centrage
-		centrage = False
+		centrage 	= False
 		self.ORIGIN = (self.WIDTH / 2, self.HEIGHT / 2)
 
 
@@ -467,18 +458,18 @@ class Application(Tk):
 		try:
 			TIMESPEED 		= self.time_reglage.get()
 		except ValueError:
-			TIMESPEED = 0
+			TIMESPEED 		= 0
 		# Incrémenter compteur temps
-		time_actualise 	(TIMESPEED)
+		time_actualise 		(TIMESPEED)
 
 		# Recommencez après 5 ms
-		self.after 		(5, self.time)
+		self.after 			(5, self.time)
 
 	def animation(self):
 
-		self.refresh_UI()
+		self.refresh_UI						()
 
-		compteur = 0
+		compteur							= 0
 		while compteur < len(self.selected_planetes):
 
 			planete 						= self.selected_planetes[compteur]
@@ -487,8 +478,8 @@ class Application(Tk):
 			self.canvas.delete 				(planete.nom_pyimage)
 
 			if(self.afficherTrajectoire.get()):
-				self.canvas.delete              (planete.trajectoire)
-				planete.trajectoire             = self.canvas.draw_trajectoire(planete, self.ORIGIN, self.zoom)
+				self.canvas.delete          (planete.trajectoire)
+				planete.trajectoire         = self.canvas.draw_trajectoire(planete, self.ORIGIN, self.zoom)
 
 			planete.actualiser_position 	()
 
@@ -525,7 +516,7 @@ class Application(Tk):
 			planete = importedPlanete
 
 		equation 							= (planete.distanceUA * cos(planete.vitesseAng * x),
-							 	 		       planete.distanceUA * sin(planete.vitesseAng * x))
+							 	 			   planete.distanceUA * sin(planete.vitesseAng * x))
 		planete.set_equation				(equation[0], equation[1])
 
 		# On l'ajoute à la liste des planetes
@@ -570,67 +561,67 @@ class Application(Tk):
 		global centrage_planete
 		global version
 
-		le_super_nouveau_WIDTH = self.winfo_width() - self.old_taillex + self.WIDTH
-		le_super_nouveau_HEIGHT = self.winfo_height() - self.old_tailley + self.HEIGHT
+		le_super_nouveau_WIDTH 		= self.winfo_width() - self.old_taillex + self.WIDTH
+		le_super_nouveau_HEIGHT 	= self.winfo_height() - self.old_tailley + self.HEIGHT
 
-		self.canvas.config(width = le_super_nouveau_WIDTH, height = le_super_nouveau_HEIGHT)
+		self.canvas.config			(width = le_super_nouveau_WIDTH, height = le_super_nouveau_HEIGHT)
 
-		self.WIDTH = le_super_nouveau_WIDTH
-		self.HEIGHT = le_super_nouveau_HEIGHT
-		self.old_taillex = self.winfo_width()
-		self.old_tailley = self.winfo_height()
+		self.WIDTH 					= le_super_nouveau_WIDTH
+		self.HEIGHT 				= le_super_nouveau_HEIGHT
+		self.old_taillex 			= self.winfo_width()
+		self.old_tailley 			= self.winfo_height()
 		
 
 		if centrage:
-			centrage_ori_x = - (centrage_planete.get_pos()[0] * self.zoom) + self.WIDTH  / 2
-			centrage_ori_y = - (centrage_planete.get_pos()[1] * self.zoom) + self.HEIGHT / 2
-			self.ORIGIN = (centrage_ori_x, centrage_ori_y)
-			self.title(version + " : " + centrage_planete.nom + " : Position : (" + str(centrage_ori_x) + ", "+ str(centrage_ori_y) + ")")
+			centrage_ori_x 			= - (centrage_planete.get_pos()[0] * self.zoom) + self.WIDTH  / 2
+			centrage_ori_y 			= - (centrage_planete.get_pos()[1] * self.zoom) + self.HEIGHT / 2
+			self.ORIGIN 			= (centrage_ori_x, centrage_ori_y)
+			self.title				(version + " : " + centrage_planete.nom + " : Position : (" + str(centrage_ori_x) + ", "+ str(centrage_ori_y) + ")")
 
-		liste = [self.echelleUA, self.echelleUAlimits, self.echelleUAlabel, 
-		   self.originLabel, self.timeLabel, self.fondPyimage]
+		liste 						= [self.echelleUA, self.echelleUAlimits, self.echelleUAlabel, 
+		   							   self.originLabel, self.timeLabel, self.fondPyimage]
 
 		# deletes
 		for id in liste:
 			if type(id) == tuple or type(id) == list:
 				for subid in id:
-					self.canvas.delete(subid)
+					self.canvas.delete					(subid)
 			else:
-				self.canvas.delete(id)
+				self.canvas.delete						(id)
 
-		self.fondPyimage = self.canvas.create_image  (self.ORIGIN[0], self.ORIGIN[1], image = self.fond)
+		self.fondPyimage = self.canvas.create_image		(self.ORIGIN[0], self.ORIGIN[1], image = self.fond)
 
 		# Afficher échelle UA
 		try:
-			setUA                                    (self.UA_reglage.get())
+			setUA                                   	(self.UA_reglage.get())
 		except ValueError:
-			setUA                                    (0)
-		self.echelleUA = self.canvas.create_line     (self.WIDTH / 20, self.HEIGHT / 50,
-												      self.WIDTH / 20 + UA * self.zoom, 
-												      self.HEIGHT / 50,
-												      fill = "#ffffff")
+			setUA                                    	(0)
+		self.echelleUA = self.canvas.create_line     	(self.WIDTH / 20, self.HEIGHT / 50,
+													 	 self.WIDTH / 20 + UA * self.zoom, 
+														 self.HEIGHT / 50,
+													  	 fill = "#ffffff")
 		self.echelleUAlimits = [
-			self.canvas.create_line                  (self.WIDTH / 20, self.HEIGHT / 60, 
-						                              self.WIDTH / 20, self.HEIGHT / 40, fill = "#ffffff"),
-			self.canvas.create_line                  (self.WIDTH / 20 + UA * self.zoom, self.HEIGHT / 60, 
-						                              self.WIDTH / 20 + UA * self.zoom, self.HEIGHT / 40, fill = "#ffffff")
+			self.canvas.create_line                  	(self.WIDTH / 20, self.HEIGHT / 60, 
+													  	 self.WIDTH / 20, self.HEIGHT / 40, fill = "#ffffff"),
+			self.canvas.create_line                  	(self.WIDTH / 20 + UA * self.zoom, self.HEIGHT / 60, 
+														 self.WIDTH / 20 + UA * self.zoom, self.HEIGHT / 40, fill = "#ffffff")
 			]
-		self.echelleUAlabel = self.canvas.create_text((self.WIDTH / 20 + (self.WIDTH / 20 + UA * self.zoom)) / 2, self.HEIGHT / 25,
-													  text = "UA", fill = "#ffffff", font = "LucidaConsole 12")
+		self.echelleUAlabel = self.canvas.create_text	((self.WIDTH / 20 + (self.WIDTH / 20 + UA * self.zoom)) / 2, self.HEIGHT / 25,
+													  	  text = "UA", fill = "#ffffff", font = "LucidaConsole 12")
 		# Afficher origine
 
-		self.originLabel = self.canvas.create_text   (self.WIDTH / 50, self.HEIGHT - self.HEIGHT / 50,
-												      text = "Origine : ( {} ; {} )".format(self.ORIGIN[0], self.ORIGIN[1]),
-												      fill = "#ffffff", anchor = W)
+		self.originLabel = self.canvas.create_text   	(self.WIDTH / 50, self.HEIGHT - self.HEIGHT / 50,
+													  	 text = "Origine : ( {} ; {} )".format(self.ORIGIN[0], self.ORIGIN[1]),
+													  	 fill = "#ffffff", anchor = W)
 
 		# Afficher temps
-		self.timeLabel = self.canvas.create_text     (self.WIDTH - len("Années passées : ")*3 - len(str(return_year()))*4, self.HEIGHT - self.HEIGHT / 50,
-												      text = "Années passées : {}".format(return_year()), fill = "#ffffff")
+		self.timeLabel = self.canvas.create_text     	(self.WIDTH - len("Années passées : ")*3 - len(str(return_year()))*4, self.HEIGHT - self.HEIGHT / 50,
+													  	 text = "Années passées : {}".format(return_year()), fill = "#ffffff")
 
 	def import_window(self):
 
-		self.importAnswer = ImportWindow().show()
-		self.get_imported_planetes()
+		self.importAnswer 			= ImportWindow().show()
+		self.get_imported_planetes	()
 
 	def get_imported_planetes(self):
 
@@ -660,3 +651,4 @@ def main():
 	return 0
 
 main()
+0
