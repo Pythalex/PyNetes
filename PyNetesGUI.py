@@ -138,6 +138,7 @@ class Planete_Prop_Window(Toplevel):
 		global centrage
 		global centrage_planete
 		global version
+
 		try:
 			self.planete.rouge 				= self.boutonrouge.get()
 		except ValueError:
@@ -161,12 +162,12 @@ class Planete_Prop_Window(Toplevel):
 			self.planete.taille 			= 0
 		
 		if(self.centrea.get()):
-			centrage = True
-			centrage_planete = self.planete
+			centrage 						= True
+			centrage_planete 				= self.planete
 		else:
 			if self.planete == centrage_planete:
-				centrage = False
-				self.root.title(version)
+				centrage 					= False
+				self.root.title				(version)
 
 		self.after 							(30, self.refresh)
 
