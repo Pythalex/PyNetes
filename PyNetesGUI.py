@@ -496,22 +496,24 @@ class Application(Tk):
 
 		self.after 							(6, self.animation)
 
-	def ajouter_planete(self, imPlanete = False):
+	def ajouter_planete(self, importedPlanete = False):
 
 		# Si le nom de la planète est déjà pris
 		if self.custom_nom.get() in self.planetes_noms:
 			# On affiche une erreur
 			tkMessageBox.showwarning 		("Nom invalide", "{} existe déjà.".format(self.custom_nom.get()))
 			return 1
+		elif importedPlanete.nom in self.planetes_noms: # Permet l'import "tout" sans avoir à retirer les planètes préexistantes
+			return 1
 
 		# On crée la planète correspondante aux données du GUI
-		if not imPlanete:
+		if not importedPlanete:
 			planete 						= Planete(self.custom_nom.get(), 
 						  						float(self.custom_taille.get()), 
 						  						float(self.custom_distance.get()), 
 						  						float(self.custom_vitesse.get()))
-		else:
-			planete = imPlanete
+		else :
+			planete = importedPlanete
 
 		equation 							= (planete.distanceUA * cos(planete.vitesseAng * x),
 							 	 		       planete.distanceUA * sin(planete.vitesseAng * x))
