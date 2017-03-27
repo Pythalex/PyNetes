@@ -256,6 +256,7 @@ class Application(Tk):
 		self.viewmenu   = Menu				(self.menubar)
 		self.viewmenu.add_command			(label = "Réinitialiser le zoom",     command = self.reset_zoom)
 		self.viewmenu.add_command			(label = "Réinitialiser le centrage", command = self.reset_centrage)
+		self.viewmenu.add_command           (label = "Plein écran",               command = self.ad_full_screen)
 		self.astresmenu = Menu				(self.menubar)
 		self.astresmenu.add_command			(label = "Voir détails astres", command = self.afficheDetailsAstres)
 
@@ -333,8 +334,6 @@ class Application(Tk):
 		self.b_zoom_rapide 					= Checkbutton(self.frame_zoom, text = "Rapide", variable = self.zoom_rapide, foreground = "#ffffff", selectcolor= "#000000")
 		self.b_zoom_lent 					= Checkbutton(self.frame_zoom, text = "Lent", variable = self.zoom_lent, foreground = "#ffffff", selectcolor= "#000000")
 
-		self.full_screen 					= Button(self.frame2, text = "Plein écran ON", command = self.ad_full_screen)
-
 		# Placements widgets
 		self.frame1.grid 					(row = 1, column = 0)
 
@@ -366,8 +365,6 @@ class Application(Tk):
 		self.b_zoom_rapide.grid				(row = 0, column = 0)
 		self.b_zoom_lent.grid				(row = 0, column = 1)
 
-		self.full_screen.grid				(row = 3, column = 0)
-
 		# UI id
 		self.echelleUA       				= -1
 		self.echelleUAlimits 				= [-1, -1]
@@ -396,11 +393,9 @@ class Application(Tk):
 		if(not self.fs_not):
 			self.geometry("%dx%d+0+0" % (self.winfo_screenwidth(), self.winfo_screenheight()))
 			self.fs_not = True
-			self.full_screen.config(text = "Plein écran OFF")
 		else:
 			self.geometry("%dx%d+100+100" % (1200, 700))
 			self.fs_not = False
-			self.full_screen.config(text = "Plein écran ON")
 
 
 	""" Initialise les commandes sur le canvas """
