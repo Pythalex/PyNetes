@@ -129,8 +129,8 @@ class Planete_Prop_Window(Toplevel):
 		self.supprimer                  = Button(self, text = "Supprimer", command = self.supprimer_planete)
 		self.supprimer.grid             (row = 11, column = 0, columnspan = 2)
 
-		self.supprimer_copie_1          = Button(self, text = "Save", command = self.save_planete)
-		self.supprimer_copie_1.grid     (row = 12, column = 0, columnspan = 2)
+		self.sauvegarder                = Button(self, text = "Sauvegarder", command = lambda : save_planete("Planetes/planetes.pyns", planete))
+		self.sauvegarder.grid           (row = 12, column = 0, columnspan = 2)
 
 		if self.planete == centrage_planete:
 				self.centrea.set(1)	
@@ -177,15 +177,6 @@ class Planete_Prop_Window(Toplevel):
 		if tkMessageBox.askyesno(title = "Suppression", message = "Etes-vous sur de vouloir supprimer cette planete ?"):
 			self.root.retirer_planete(self.planete)
 			self.destroy()
-
-	def save_planete(self):
-		liste = [self.planete.nom, self.planete.taille, self.planete.distanceUA, self.planete.vitesseAng, self.planete.rouge, self.planete.vert, self.planete.bleu, "self.distanceUA*cos(self.vitesseAng*t)", "self.distanceUA*sin(self.vitesseAng*t)"]
-		ecrire = open("Planetes/planetes.txt", "a")
-		ecrire.write("\n")
-		for i in range(8):
-			ecrire.write(str(liste[i]))
-			ecrire.write(";")
-		ecrire.write(str(liste[8]))
 
 class Planete_Bouton(Button):
 
@@ -539,7 +530,7 @@ class Application(Tk):
 			# On affiche une erreur
 			tkMessageBox.showwarning 		("Nom invalide", "{} existe déjà.".format(self.custom_nom.get()))
 			return 1
-		elif importedPlanete.nom in self.planetes_noms: # Permet l'import "tout" sans avoir à retirer les planètes préexistantes
+		elif importedPlanete and importedPlanete.nom in self.planetes_noms: # Permet l'import "tout" sans avoir à retirer les planètes préexistantes
 			return 1
 
 		# On crée la planète correspondante aux données du GUI

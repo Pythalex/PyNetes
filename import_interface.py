@@ -77,7 +77,7 @@ class ImportWindow(Toplevel):
 		self.destroy()
 
 	def read_file(self):
-		planetes = file.lire_save(filename = "Planetes/planetes.txt")
+		planetes = file.lire_save(filename = "Planetes/planetes.pyns")
 		return planetes
 
 
