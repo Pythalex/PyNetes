@@ -49,7 +49,7 @@ def save_planete(filename, planete):
 		for planete in liste:
 			for elm in planete:
 				ecrire.write(str(elm))
-				if elm != '\r\n':
+				if elm != '\r\n' and elm != '\n' :
 					ecrire.write(";")
 
 		ecrire.close() # On ferme le fichier, sinon on ne peut pas importer directement la planète sauvegardée !
