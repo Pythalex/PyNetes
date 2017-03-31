@@ -257,6 +257,7 @@ class Application(Tk):
 		self.viewmenu.add_command			(label = "Réinitialiser le zoom",     command = self.reset_zoom)
 		self.viewmenu.add_command			(label = "Réinitialiser le centrage", command = self.reset_centrage)
 		self.viewmenu.add_command           (label = "Plein écran",               command = self.ad_full_screen)
+		self.viewmenu.add_command           (label = "Activer fond d'écran",      command = self.switch_background)
 		self.astresmenu = Menu				(self.menubar)
 		self.astresmenu.add_command			(label = "Voir détails astres", command = self.afficheDetailsAstres)
 
@@ -280,7 +281,9 @@ class Application(Tk):
 													 bg = "#000000")  # black background
 
 		self.fond 							= PhotoImage(file="Images/background.png")
-		self.fondPyimage 					= self.canvas.create_image		(self.ORIGIN[0], self.ORIGIN[1], image = self.fond)                      
+		self.fondPyimage 					= self.canvas.create_image		(self.ORIGIN[0], self.ORIGIN[1], image = self.fond)       
+		self.fond_todisp                    = True    
+		self.fond_haveBeenDelete            = False           
 
 		# Variables
 		self.terre_select 					= IntVar()
@@ -470,6 +473,11 @@ class Application(Tk):
 		centrage 	= False
 		self.ORIGIN = (self.WIDTH / 2, self.HEIGHT / 2)
 
+	def switch_background(self):
+		if self.fond_todisp:
+			self.fond_todisp = False
+		else:
+			self.fond_todisp = True
 
 	# Methodes
 
@@ -620,7 +628,7 @@ class Application(Tk):
 			self.title				(version + " : " + centrage_planete.nom + " : Position : (" + str(centrage_ori_x) + ", "+ str(centrage_ori_y) + ")")
 
 		liste 						= [self.echelleUA, self.echelleUAlimits, self.echelleUAlabel, 
-		   							   self.originLabel, self.timeLabel, self.fondPyimage]
+		   							   self.originLabel, self.timeLabel]
 
 		# deletes
 		for id in liste:
@@ -630,7 +638,14 @@ class Application(Tk):
 			else:
 				self.canvas.delete						(id)
 
-		self.fondPyimage = self.canvas.create_image		(self.ORIGIN[0], self.ORIGIN[1], image = self.fond)
+		if self.fond_todisp:
+			self.canvas.delete(self.fondPyimage)
+			self.fondPyimage = self.canvas.create_image		(self.ORIGIN[0], self.ORIGIN[1], image = self.fond)
+			self.fond_haveBeenDelete = False
+
+		elif (not self.fond_todisp) and (not self.fond_haveBeenDelete):
+			self.canvas.delete(self.fondPyimage)
+			self.fond_haveBeenDelete = True
 
 		# Afficher échelle UA
 		try:
