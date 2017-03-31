@@ -9,3 +9,7 @@ Uranus;10;19.1891;2.3687e-9;134;163;181;self.distanceUA*cos(self.vitesseAng*t);s
 Neptune;9;30.103;1.2061e-9;110;175;255;self.distanceUA*cos(self.vitesseAng*t);self.distanceUA*sin(self.vitesseAng*t);
 Soleil;35;0;0;255;240;000;0;0;
 Test;15;1.0;1.0;255;255;255;self.distanceUA*cos(self.vitesseAng*t);self.distanceUA*sin(self.vitesseAng*t);
+Aa;15;1.0;1.0;255;255;255;self.distanceUA*cos(self.vitesseAng*t);self.distanceUA*sin(self.vitesseAng*t);
+EE;15;1.0;1.0;255;255;255;self.distanceUA*cos(self.vitesseAng*t);self.distanceUA*sin(self.vitesseAng*t);
+EE;15;1.0;1.0;255;255;255;self.distanceUA*cos(self.vitesseAng*t);self.distanceUA*sin(self.vitesseAng*t);
+Aa;15;1.0;1.0;255;255;255;self.distanceUA*cos(self.vitesseAng*t);self.distanceUA*sin(self.vitesseAng*t);

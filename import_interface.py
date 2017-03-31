@@ -20,27 +20,22 @@ class ImportWindow(Toplevel):
 
 		# Crée un bouton de check pour chaque planète dans le fichier planetes.txt
 		for planete in planetes:
-			id     = IntVar()
+			valeur     = IntVar()
 			bouton = Checkbutton(master     = self.boutons_frame,
 								 text       = planete.nom,
-								 variable   = id,
+								 variable   = valeur,
 								 foreground = "#ffffff",
 								 selectcolor= "#000000")
-			bouton.var = id
+			bouton.var = valeur
 			bouton.planete = planete
 
 			self.boutons.append(bouton)
 
-		self.tous   	 = IntVar()
-		self.bouton_tous = Checkbutton(master = self.boutons_frame,
-								 text       = "Tout",
-								 variable   = self.tous,
-								 foreground = "#ffffff",
-								 selectcolor= "#000000")
+		self.bouton_tous = Button(master = self.boutons_frame,
+								  text       = "Tout",
+								  command = self.cocher_tout)
 		self.bouton_tous.grid(row = 0, column = 0,
-						  	  columnspan = 2, padx = 5)
-		Label(master = self.boutons_frame, text = "-----").grid(row = 1, column = 0,
-						  										columnspan = 2, padx = 5)
+						  	  padx = 5)
 
 	def show(self):
 		row = 2
@@ -52,7 +47,7 @@ class ImportWindow(Toplevel):
 							        text = "Valider",
 									command = self.valider)
 		self.bouton_valide.grid(row = row, column = 0,
-						  columnspan = 2, padx = 5)
+						  padx = 5)
 
 		self.importAnswer = 0 # Valeur de retour pour l'application principale
 
@@ -66,15 +61,26 @@ class ImportWindow(Toplevel):
 
 		# Pour chaque checkbutton dans la fenêtre, si le bouton est on, la planète est ajoutée
 		for bouton in self.boutons:
-			if self.tous.get():
-				self.planetes_a_ajouter.append(bouton.planete)
-			elif bouton.var.get():
+			if bouton.var.get():
 				self.planetes_a_ajouter.append(bouton.planete)
 			else:
 				self.planetes_a_suppr.append(bouton.planete)
 
 		self.importAnswer = self.planetes_a_ajouter
 		self.destroy()
+
+	def cocher_tout(self):
+
+		tous_deja_coche = True
+
+		for bouton in self.boutons:
+			if (not bouton.var.get()):
+				bouton.var.set(1)
+				tous_deja_coche = False
+
+		if tous_deja_coche:
+			for bouton in self.boutons:
+				bouton.var.set(0)
 
 	def read_file(self):
 		planetes = file.lire_save(filename = "Planetes/planetes.pyns")
