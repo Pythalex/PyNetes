@@ -22,3 +22,5 @@ Si vous êtes sur le sous-système Linux de Windows, vous aurez également besoi
 
 Une fois sous sage dans le repertoire de PyNètes, chargez le fichier GUI :<br/><br/>
         sage: load("PyNetesGUI.py")
+        
+Pour plus d'information sur l'utilisation de PyNètes, se référer à la documentation : https://github.com/Pythalex/PyNetes/blob/master/Documentation/documentation.pdf
